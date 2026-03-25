@@ -1,4 +1,4 @@
-# baobab_dgfip_activity_reporting
+# baobab_activity_reporting
 
 ## 1. Objet du projet
 
