@@ -94,7 +94,23 @@ src/
       standardization_error.py
       validation_error.py
       writer_error.py
+    ingestion/
+      __init__.py
+      extractors/
+        __init__.py
+        base_extractor.py
+        csv_extraction_configuration.py
+        csv_incoming_calls_extractor.py
+        csv_outgoing_calls_extractor.py
+        csv_ticket_extractor.py
 tests/
+  conftest.py
+  fixtures/
+    incoming_calls.csv
+    outgoing_calls.csv
+    tickets.csv
+    empty.csv
+    malformed.csv
   baobab_activity_reporting/
     core/
       test_package_metadata.py
@@ -120,6 +136,13 @@ tests/
       test_standardization_error.py
       test_validation_error.py
       test_writer_error.py
+    ingestion/
+      extractors/
+        test_base_extractor.py
+        test_csv_extraction_configuration.py
+        test_csv_incoming_calls_extractor.py
+        test_csv_outgoing_calls_extractor.py
+        test_csv_ticket_extractor.py
 docs/
   dev_diary.md
   tests/

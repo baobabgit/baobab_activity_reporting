@@ -1,0 +1,4 @@
+Date;Heure;Agent;Site;Durée;Destination
+2026-03-01;08:30:00;Dupont Marie;Paris Nord;60;externe
+2026-03-01;10:15:00;Martin Jean;Lyon Sud;180;interne
+2026-03-01;13:00:00;Durand Pierre;Paris Nord;30;externe

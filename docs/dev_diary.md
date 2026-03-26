@@ -1,5 +1,50 @@
 # Journal de développement — baobab-activity-reporting
 
+## 2026-03-26 11:10:00
+
+### Modifications
+
+- Création du sous-package `ingestion/extractors/` pour la couche d'ingestion.
+- Création de `CsvExtractionConfiguration` : objet de configuration de lecture
+  CSV (séparateur, encodage, colonnes attendues, lignes à ignorer, libellé).
+- Création de `BaseExtractor` : extracteur abstrait implémentant la lecture
+  CSV via pandas, la vérification d'existence du fichier, la détection des
+  colonnes manquantes et la journalisation via `logging`.
+- Création de `CsvIncomingCallsExtractor` : extracteur spécialisé pour les
+  fichiers d'appels entrants avec colonnes attendues prédéfinies.
+- Création de `CsvOutgoingCallsExtractor` : extracteur spécialisé pour les
+  fichiers d'appels sortants.
+- Création de `CsvTicketExtractor` : extracteur spécialisé pour les fichiers
+  de tickets (EFI, EDI, téléphone).
+- Ajout de `pandas>=2.1.0,<3.0.0` comme dépendance de production et
+  `pandas-stubs>=2.1.0` comme dépendance de développement.
+- Création de fixtures CSV de test dans `tests/fixtures/` (appels entrants,
+  appels sortants, tickets, fichier vide, fichier malformé, colonnes
+  manquantes).
+- Création de `tests/conftest.py` avec la fixture `fixtures_dir`.
+- Ajout de 35 tests unitaires couvrant toutes les classes d'ingestion.
+- Désactivation de `duplicate-code` dans pylint (similarité structurelle
+  attendue entre extracteurs).
+- Mise à jour de `README.md`, `CHANGELOG.md` et passage en version 0.3.0.
+
+### Buts
+
+- Fournir une couche d'ingestion propre capable de lire les fichiers CSV
+  métiers en renvoyant des résultats d'extraction structurés.
+- Séparer strictement la lecture de fichier de toute logique métier.
+- Permettre aux features suivantes (standardisation, validation) de
+  s'appuyer sur des `ExtractionResult` fiables.
+
+### Impact
+
+- Les fichiers CSV d'appels entrants, sortants et de tickets peuvent
+  être lus avec des extracteurs spécialisés.
+- Toute erreur de lecture (fichier absent, encodage invalide, etc.) est
+  encapsulée dans une `ExtractionError` du projet.
+- Les colonnes manquantes sont signalées en warning sans bloquer
+  l'extraction.
+- La couverture de code reste à 100 %.
+
 ## 2026-03-26 10:15:00
 
 ### Modifications
