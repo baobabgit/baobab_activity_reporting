@@ -5,6 +5,20 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-03-26
+
+### Added
+
+- Modèles métier : `ReportingPeriod`, `Agent`, `Site`, `Kpi`.
+- Objets de résultat techniques : `ExtractionResult`, `ValidationResult`,
+  `SectionDecision`, `DataAvailability`.
+- Hiérarchie d'exceptions métier : `ReportingError`, `ExtractionError`,
+  `ValidationError`, `StandardizationError`, `ResolutionError`,
+  `PersistenceError`, `ReportGenerationError`, `WriterError`.
+- Énumérations `Severity` et `SectionStatus`.
+- Sous-packages `domain/models/` et `domain/results/`.
+- Tests unitaires pour toutes les nouvelles classes (175 nouveaux tests).
+
 ## [0.1.0] - 2026-03-26
 
 ### Added

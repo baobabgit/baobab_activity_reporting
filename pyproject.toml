@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "baobab-activity-reporting"
-version = "0.1.0"
+version = "0.2.0"
 description = "API Python de reporting d'activité pour Baobab."
 readme = "README.md"
 license = {text = "MIT"}
@@ -59,6 +59,8 @@ disable = [
 
 [tool.pylint.design]
 min-public-methods = 1
+max-args = 6
+max-positional-arguments = 6
 
 [tool.mypy]
 python_version = "3.10"
