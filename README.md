@@ -103,6 +103,22 @@ src/
         csv_incoming_calls_extractor.py
         csv_outgoing_calls_extractor.py
         csv_ticket_extractor.py
+    processing/
+      __init__.py
+      cleaning/
+        __init__.py
+        data_cleaner.py
+      normalization/
+        __init__.py
+        column_mapper.py
+        data_type_normalizer.py
+        standardization_pipeline.py
+        value_standardizer.py
+      validation/
+        __init__.py
+        dataset_validator.py
+        schema_registry.py
+        validation_rule.py
 tests/
   conftest.py
   fixtures/
@@ -143,6 +159,18 @@ tests/
         test_csv_incoming_calls_extractor.py
         test_csv_outgoing_calls_extractor.py
         test_csv_ticket_extractor.py
+    processing/
+      cleaning/
+        test_data_cleaner.py
+      normalization/
+        test_column_mapper.py
+        test_data_type_normalizer.py
+        test_standardization_pipeline.py
+        test_value_standardizer.py
+      validation/
+        test_dataset_validator.py
+        test_schema_registry.py
+        test_validation_rule.py
 docs/
   dev_diary.md
   tests/

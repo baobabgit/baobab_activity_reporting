@@ -5,6 +5,18 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-03-26
+
+### Added
+
+- Couche de standardisation : `ColumnMapper`, `DataCleaner`, `DataTypeNormalizer`,
+  `ValueStandardizer`, `StandardizationPipeline`.
+- Couche de validation : `ValidationRule` (abstraite), `ColumnPresenceRule`,
+  `NullRatioRule`, `SchemaRegistry`, `DatasetValidator`.
+- Sous-packages `processing/cleaning/`, `processing/normalization/`,
+  `processing/validation/`.
+- 75 nouveaux tests unitaires pour la standardisation et la validation.
+
 ## [0.3.0] - 2026-03-26
 
 ### Added
