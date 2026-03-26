@@ -1,0 +1,129 @@
+[build-system]
+requires = ["setuptools>=68.0.0,<69.0.0", "wheel>=0.41.0,<1.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "baobab-activity-reporting"
+version = "0.1.0"
+description = "API Python de reporting d'activité pour Baobab."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Baobab Team"},
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
+]
+
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "black>=24.0.0,<25.0.0",
+    "pylint>=3.0.0,<4.0.0",
+    "mypy>=1.8.0,<2.0.0",
+    "flake8>=7.0.0,<8.0.0",
+    "Flake8-pyproject>=1.2.0,<2.0.0",
+    "bandit>=1.7.0,<2.0.0",
+    "pytest>=8.0.0,<9.0.0",
+    "pytest-cov>=5.0.0,<6.0.0",
+    "coverage>=7.4.0,<8.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+[tool.pylint.main]
+source-roots = ["src"]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pylint."messages control"]
+disable = [
+    "too-few-public-methods",
+    "missing-module-docstring",
+]
+
+[tool.pylint.design]
+min-public-methods = 1
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+strict = true
+mypy_path = "src"
+
+[tool.flake8]
+max-line-length = 100
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg",
+    "docs",
+]
+ignore = ["E203", "W503"]
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--tb=short",
+    "-v",
+    "--cov=baobab_activity_reporting",
+    "--cov-config=pyproject.toml",
+    "--cov-report=term-missing",
+    "--cov-report=html:docs/tests/coverage/html",
+    "--cov-report=xml:docs/tests/coverage/coverage.xml",
+]
+
+[tool.coverage.run]
+source = ["baobab_activity_reporting"]
+data_file = "docs/tests/coverage/.coverage"
+branch = true
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.",
+    "@abstractmethod",
+]
+
+[tool.coverage.html]
+directory = "docs/tests/coverage/html"
+
+[tool.coverage.xml]
+output = "docs/tests/coverage/coverage.xml"

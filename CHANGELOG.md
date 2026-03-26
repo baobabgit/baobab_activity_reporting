@@ -1,0 +1,20 @@
+# Changelog
+
+Tous les changements notables de ce projet seront documentés dans ce fichier.
+
+Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
+et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.1.0] - 2026-03-26
+
+### Added
+
+- Initialisation du socle projet avec `pyproject.toml`.
+- Arborescence `src/baobab_activity_reporting/`, `tests/`, `docs/`.
+- Exception de base `ApplicationException`.
+- Exception technique `ConfigurationException`.
+- Classe `PackageMetadata` pour l'accès aux métadonnées du package.
+- Configuration de black, pylint, mypy, flake8, bandit, pytest et coverage.
+- Séparation des dépendances de production et de développement.
+- Documentation initiale : `README.md`, `CHANGELOG.md`, `docs/dev_diary.md`.
+- Tests unitaires des exceptions et de `PackageMetadata`.
