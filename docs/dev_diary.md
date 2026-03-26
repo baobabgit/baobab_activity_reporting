@@ -1,5 +1,45 @@
 # Journal de développement — baobab-activity-reporting
 
+## 2026-03-26 14:15:00
+
+### Modifications
+
+- Création du sous-package `processing/normalization/` avec :
+  - `ColumnMapper` : renommage de colonnes via un dictionnaire de mapping.
+  - `DataTypeNormalizer` : conversion de colonnes vers datetime, int, float.
+  - `ValueStandardizer` : normalisation des valeurs textuelles (espaces,
+    accents, casse) pour harmoniser les libellés d'agents et de sites.
+  - `StandardizationPipeline` : orchestrateur enchaînant mapping, nettoyage,
+    normalisation des types et standardisation des valeurs.
+- Création du sous-package `processing/cleaning/` avec :
+  - `DataCleaner` : strip des espaces, normalisation de casse (lower, upper,
+    title) sur les colonnes texte.
+- Création du sous-package `processing/validation/` avec :
+  - `ValidationRule` : règle abstraite applicable à un DataFrame.
+  - `ColumnPresenceRule` : vérifie la présence de colonnes obligatoires.
+  - `NullRatioRule` : vérifie le taux de valeurs nulles par colonne.
+  - `SchemaRegistry` : registre de schémas attendus par type de source,
+    générant automatiquement les règles de validation.
+  - `DatasetValidator` : exécute séquentiellement les règles et agrège
+    les résultats dans un `ValidationResult`.
+- Ajout de 75 tests unitaires pour la standardisation et la validation.
+- Passage en version 0.4.0.
+
+### Buts
+
+- Rendre les données extraites homogènes, typées et exploitables
+  avant toute règle de rapprochement métier.
+- Permettre la détection précoce d'anomalies structurelles et de qualité.
+
+### Impact
+
+- Les données issues des extracteurs CSV peuvent maintenant être
+  nettoyées, renommées, typées et validées de manière systématique.
+- Les erreurs de conversion sont encapsulées dans `StandardizationError`.
+- Les contrôles de validation distinguent erreurs bloquantes et
+  avertissements via `ValidationResult`.
+- La couverture de code reste à 100 %.
+
 ## 2026-03-26 11:10:00
 
 ### Modifications
