@@ -1,5 +1,39 @@
 # Journal de développement — baobab-activity-reporting
 
+## 2026-03-26 15:45:00
+
+### Modifications
+
+- Création du sous-package `storage/sqlite/` avec `DatabaseSessionManager` :
+  gestion de connexion SQLite, initialisation automatique du schéma (4 tables),
+  mode WAL, fermeture propre, support `:memory:` et fichier.
+- Création du sous-package `storage/repositories/` avec :
+  - `RawDataRepository` : persistance des données brutes (save/load/count/delete).
+  - `PreparedDataRepository` : persistance des données nettoyées/normalisées.
+  - `KpiRepository` : persistance des indicateurs calculés avec période.
+  - `ReportDataRepository` : persistance des sections de rapport générées.
+- Schéma SQLite minimal : `raw_data`, `prepared_data`, `kpi_data`, `report_data`.
+- Sérialisation JSON des lignes DataFrame pour le stockage row-level.
+- Ajout de 43 tests unitaires sur base SQLite en mémoire (`:memory:`).
+- Configuration bandit : skip B608 (f-strings avec noms de tables constantes).
+- Passage en version 0.5.0.
+
+### Buts
+
+- Mettre en place une couche de persistance abstraite adossée à SQLite,
+  séparant données brutes, préparées et métriques.
+- Permettre le stockage intermédiaire entre les étapes du pipeline pour
+  faciliter l'audit, le recalcul et la traçabilité.
+
+### Impact
+
+- Les données extraites, standardisées et les KPI calculés peuvent
+  désormais être persistés en SQLite et relus.
+- Toute erreur SQLite est encapsulée dans `PersistenceError`.
+- Le domaine ne dépend pas directement des détails SQLite : les
+  repositories abstraient l'accès aux données.
+- La couverture de code reste à 97 %.
+
 ## 2026-03-26 14:15:00
 
 ### Modifications

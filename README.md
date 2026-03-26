@@ -119,6 +119,17 @@ src/
         dataset_validator.py
         schema_registry.py
         validation_rule.py
+    storage/
+      __init__.py
+      sqlite/
+        __init__.py
+        database_session_manager.py
+      repositories/
+        __init__.py
+        raw_data_repository.py
+        prepared_data_repository.py
+        kpi_repository.py
+        report_data_repository.py
 tests/
   conftest.py
   fixtures/
@@ -171,6 +182,14 @@ tests/
         test_dataset_validator.py
         test_schema_registry.py
         test_validation_rule.py
+    storage/
+      sqlite/
+        test_database_session_manager.py
+      repositories/
+        test_raw_data_repository.py
+        test_prepared_data_repository.py
+        test_kpi_repository.py
+        test_report_data_repository.py
 docs/
   dev_diary.md
   tests/

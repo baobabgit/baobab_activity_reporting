@@ -5,6 +5,19 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-03-26
+
+### Added
+
+- Couche de persistance SQLite : `DatabaseSessionManager`, `RawDataRepository`,
+  `PreparedDataRepository`, `KpiRepository`, `ReportDataRepository`.
+- Sous-packages `storage/sqlite/` et `storage/repositories/`.
+- Schéma SQLite minimal avec 4 tables : `raw_data`, `prepared_data`,
+  `kpi_data`, `report_data`.
+- Gestion des erreurs de persistance via `PersistenceError`.
+- 43 nouveaux tests unitaires sur base SQLite temporaire.
+- Skip B608 dans la configuration bandit (table names constantes).
+
 ## [0.4.0] - 2026-03-26
 
 ### Added
