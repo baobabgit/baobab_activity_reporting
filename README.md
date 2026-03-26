@@ -68,17 +68,58 @@ src/
     core/
       __init__.py
       package_metadata.py
+    domain/
+      __init__.py
+      models/
+        __init__.py
+        agent.py
+        kpi.py
+        reporting_period.py
+        site.py
+      results/
+        __init__.py
+        data_availability.py
+        extraction_result.py
+        section_decision.py
+        validation_result.py
     exceptions/
       __init__.py
       application_exception.py
       configuration_exception.py
+      extraction_error.py
+      persistence_error.py
+      report_generation_error.py
+      reporting_error.py
+      resolution_error.py
+      standardization_error.py
+      validation_error.py
+      writer_error.py
 tests/
   baobab_activity_reporting/
     core/
       test_package_metadata.py
+    domain/
+      models/
+        test_agent.py
+        test_kpi.py
+        test_reporting_period.py
+        test_site.py
+      results/
+        test_data_availability.py
+        test_extraction_result.py
+        test_section_decision.py
+        test_validation_result.py
     exceptions/
       test_application_exception.py
       test_configuration_exception.py
+      test_extraction_error.py
+      test_persistence_error.py
+      test_report_generation_error.py
+      test_reporting_error.py
+      test_resolution_error.py
+      test_standardization_error.py
+      test_validation_error.py
+      test_writer_error.py
 docs/
   dev_diary.md
   tests/
