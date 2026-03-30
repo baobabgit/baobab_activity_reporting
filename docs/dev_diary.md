@@ -1,5 +1,29 @@
 # Journal de développement — baobab-activity-reporting
 
+## 2026-03-30 20:00:00
+
+### Modifications
+
+- Sous-package ``reporting/writers/`` : ``AbstractWriter`` (contrat),
+  ``DocxWriter`` (python-docx : titres, paragraphes, tableaux, puces),
+  ``MarkdownWriter`` (GFM, UTF-8).
+- Encapsulation des erreurs dans ``WriterError`` ; aucune logique KPI ni
+  planification dans les writers.
+- Dépendance ``python-docx`` ; configuration mypy ``ignore_missing_imports``
+  pour le module ``docx``.
+- Documentation ``docs/document_writers.md``, README et CHANGELOG ; version
+  0.8.0.
+
+### Buts
+
+- Rendre le ``ReportModel`` exploitable en DOCX et Markdown de façon
+  interchangeable.
+
+### Impact
+
+- Le pipeline peut enchaîner ``ReportBuilder`` puis un writer sans dupliquer
+  la sémantique métier.
+
 ## 2026-03-30 18:00:00
 
 ### Modifications

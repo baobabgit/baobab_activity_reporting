@@ -100,6 +100,20 @@ model = ReportBuilder().build(ReportDefinition.activity_telephony(), context)
 document = model.to_document_tree()
 ```
 
+### Export DOCX et Markdown
+
+Les writers ne contiennent que la mise en forme fichier. Détails et limites :
+`docs/document_writers.md`.
+
+```python
+from pathlib import Path
+
+from baobab_activity_reporting import DocxWriter, MarkdownWriter
+
+DocxWriter().write(model, Path("rapport.docx"))
+MarkdownWriter().write(model, Path("rapport.md"))
+```
+
 ## Outils de qualité
 
 Le projet utilise les outils suivants, tous configurés dans `pyproject.toml` :
@@ -205,6 +219,11 @@ src/
       report_planner.py
       section_eligibility_evaluator.py
       table_builder.py
+      writers/
+        __init__.py
+        abstract_writer.py
+        docx_writer.py
+        markdown_writer.py
     storage/
       __init__.py
       sqlite/
@@ -268,6 +287,11 @@ tests/
         test_site_kpi_calculator.py
         test_telephony_kpi_calculator.py
       reporting/
+        writers/
+          test_abstract_writer.py
+          test_docx_writer.py
+          test_markdown_writer.py
+          test_writers_integration.py
         test_insight_builder.py
         test_narrative_builder.py
         test_report_builder.py
