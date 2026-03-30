@@ -5,6 +5,18 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-03-30
+
+### Added
+
+- Writers documentaires : ``AbstractWriter``, ``DocxWriter``, ``MarkdownWriter``
+  dans ``reporting/writers/`` ; export depuis le package racine et
+  ``reporting``.
+- Dépendance de production ``python-docx``.
+- Documentation ``docs/document_writers.md`` ; tests unitaires et
+  d'intégration (fichiers générés dans ``tmp_path``).
+- Les erreurs de rendu ou d'écriture sont levées via ``WriterError``.
+
 ## [0.7.0] - 2026-03-30
 
 ### Added

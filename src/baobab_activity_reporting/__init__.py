@@ -85,8 +85,14 @@ from baobab_activity_reporting.reporting.section_eligibility_evaluator import (
     SectionEligibilityEvaluator,
 )
 from baobab_activity_reporting.reporting.table_builder import TableBuilder
+from baobab_activity_reporting.reporting.writers.abstract_writer import AbstractWriter
+from baobab_activity_reporting.reporting.writers.docx_writer import DocxWriter
+from baobab_activity_reporting.reporting.writers.markdown_writer import (
+    MarkdownWriter,
+)
 
 __all__: list[str] = [
+    "AbstractWriter",
     "ActivityAggregator",
     "Agent",
     "AgentKpiCalculator",
@@ -94,12 +100,14 @@ __all__: list[str] = [
     "ConfigurationException",
     "ConsolidatedDataSchema",
     "DataAvailability",
+    "DocxWriter",
     "ExtractionError",
     "ExtractionResult",
     "InsightBuilder",
     "Kpi",
     "KpiComputationError",
     "KpiComputationPipeline",
+    "MarkdownWriter",
     "NarrativeBuilder",
     "PackageMetadata",
     "PeriodAggregator",
