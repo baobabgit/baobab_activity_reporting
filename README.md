@@ -12,7 +12,9 @@ Ce projet fournit une API Python capable de :
 4. calculer des indicateurs d'activité (agrégations par période, site, agent,
    canal, pipeline `KpiComputationPipeline`) ;
 5. stocker les données calculées ;
-6. générer un rapport d'activité structuré et exportable.
+6. planifier et construire un modèle éditorial (`ReportModel`) à partir des KPI,
+   sans dépendance au format de sortie — voir `docs/report_types.md` ;
+7. (extensions futures) exporter ce modèle vers des formats documentaires.
 
 ## Installation
 
@@ -70,6 +72,32 @@ try:
     print(summary)
 finally:
     manager.close()
+```
+
+### Modèle de rapport (planification et construction)
+
+À partir des enregistrements KPI (même schéma que `KpiRepository.load_all()`),
+le moteur éditorial exclut les sections sans données, puis produit titres,
+narratifs, tableaux et insights.
+
+```python
+from datetime import date
+
+from baobab_activity_reporting import (
+    ReportBuilder,
+    ReportContext,
+    ReportDefinition,
+    ReportingPeriod,
+)
+
+period = ReportingPeriod(date(2026, 1, 1), date(2026, 1, 31))
+kpi_rows = [
+    {"code": "telephony.incoming.count", "label": "Entrants", "value": 10.0,
+     "unit": "appels"},
+]
+context = ReportContext(period, kpi_rows)
+model = ReportBuilder().build(ReportDefinition.activity_telephony(), context)
+document = model.to_document_tree()
 ```
 
 ## Outils de qualité
@@ -166,6 +194,17 @@ src/
         period_aggregator.py
         site_kpi_calculator.py
         telephony_kpi_calculator.py
+    reporting/
+      __init__.py
+      insight_builder.py
+      narrative_builder.py
+      report_builder.py
+      report_context.py
+      report_definition.py
+      report_model.py
+      report_planner.py
+      section_eligibility_evaluator.py
+      table_builder.py
     storage/
       __init__.py
       sqlite/
@@ -228,6 +267,16 @@ tests/
         test_period_aggregator.py
         test_site_kpi_calculator.py
         test_telephony_kpi_calculator.py
+      reporting/
+        test_insight_builder.py
+        test_narrative_builder.py
+        test_report_builder.py
+        test_report_context.py
+        test_report_definition.py
+        test_report_model.py
+        test_report_planner.py
+        test_section_eligibility_evaluator.py
+        test_table_builder.py
       normalization/
         test_column_mapper.py
         test_data_type_normalizer.py
