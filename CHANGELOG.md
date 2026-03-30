@@ -5,6 +5,26 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-03-30
+
+### Changed
+
+- Passage en version **1.0.0** – première release stable.
+- Classifier PyPI passé de `Development Status :: 3 - Alpha` à
+  `Development Status :: 5 - Production/Stable`.
+
+### Added
+
+- Fichier `LICENSE` (MIT) ajouté à la racine du dépôt.
+- Workflow CI GitHub Actions (`.github/workflows/ci.yml`) : installation,
+  black, pylint, flake8, mypy, bandit et pytest sur Python 3.10 / 3.11 / 3.12.
+- Documentation dans le README de la commande unique de validation locale.
+
+### Fixed
+
+- Cohérence vérifiée entre `README.md`, `pyproject.toml`, `CHANGELOG.md` et la
+  structure réelle du dépôt.
+
 ## [0.9.0] - 2026-03-30
 
 ### Added
