@@ -58,6 +58,27 @@ class TestKpiRepository:
         results = repo.load_by_code("missing")
         assert results == []
 
+    def test_load_for_period(self, session: DatabaseSessionManager) -> None:
+        """Vérifie le filtre par bornes de période."""
+        repo = KpiRepository(session)
+        repo.save_kpi(
+            "k1",
+            "K1",
+            1.0,
+            period_start="2026-03-01",
+            period_end="2026-03-31",
+        )
+        repo.save_kpi(
+            "k2",
+            "K2",
+            2.0,
+            period_start="2026-04-01",
+            period_end="2026-04-30",
+        )
+        rows = repo.load_for_period("2026-03-01", "2026-03-31")
+        assert len(rows) == 1
+        assert rows[0]["code"] == "k1"
+
     def test_load_all(self, session: DatabaseSessionManager) -> None:
         """Vérifie le chargement de tous les KPI."""
         repo = KpiRepository(session)

@@ -43,6 +43,22 @@ class TestBaseExtractor:
         extractor = ConcreteExtractor(configuration=CsvExtractionConfiguration())
         assert extractor.configuration is not None
 
+    def test_load_dataframe_matches_extract_metadata(self, fixtures_dir: Path) -> None:
+        """Vérifie que load_dataframe + extraction_result_from_dataframe aligne extract."""
+        extractor = ConcreteExtractor(
+            configuration=CsvExtractionConfiguration(
+                separator=";",
+                encoding="utf-8",
+                source_label="test",
+            )
+        )
+        path = str(fixtures_dir / "incoming_calls.csv")
+        frame = extractor.load_dataframe(path)
+        meta = extractor.extraction_result_from_dataframe("incoming_calls.csv", frame)
+        direct = extractor.extract(path)
+        assert meta.row_count == direct.row_count == len(frame)
+        assert meta.column_names == direct.column_names
+
     def test_extract_nominal(self, fixtures_dir: Path) -> None:
         """Vérifie l'extraction nominale d'un fichier CSV."""
         extractor = ConcreteExtractor(

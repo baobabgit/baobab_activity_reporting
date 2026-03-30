@@ -1,5 +1,27 @@
 # Journal de développement — baobab-activity-reporting
 
+## 2026-03-30 22:00:00
+
+### Modifications
+
+- Sous-packages ``application/`` (cas d'usage import, calcul KPI, génération)
+  et ``cli/`` (argparse, JSON stdout) ; script d'entrée ``baobab-reporting``.
+- ``ReportingService`` compose les use cases sur une ``DatabaseSessionManager``.
+- ``KpiRepository.load_for_period`` ; ``BaseExtractor.load_dataframe`` et
+  ``extraction_result_from_dataframe`` pour l'import sans relecture du fichier.
+- Documentation ``docs/end_to_end_pipeline.md`` ; README (façade + CLI) ;
+  version 0.9.0.
+
+### Buts
+
+- Exposer le moteur existant par des intentions métier explicites et une CLI
+  opérationnelle, sans API HTTP.
+
+### Impact
+
+- Parcours bout-en-bout documenté ; les règles métier restent dans les couches
+  domaine / processing / reporting — les use cases orchestrent seulement.
+
 ## 2026-03-30 20:00:00
 
 ### Modifications

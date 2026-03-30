@@ -188,6 +188,65 @@ class KpiRepository:
         logger.info("%d KPI chargés au total", len(results))
         return results
 
+    def load_for_period(
+        self,
+        period_start: str,
+        period_end: str,
+    ) -> list[dict[str, object]]:
+        """Charge les KPI dont la période correspond aux bornes données.
+
+        Filtre sur ``period_start`` et ``period_end`` tels que persistés
+        par le pipeline de calcul (dates ISO).
+
+        :param period_start: Début de période (ISO 8601 date).
+        :type period_start: str
+        :param period_end: Fin de période (ISO 8601 date).
+        :type period_end: str
+        :return: Enregistrements KPI de la période.
+        :rtype: list[dict[str, object]]
+        :raises PersistenceError: Si la lecture échoue.
+        """
+        conn = self.session_manager.connection
+        try:
+            cursor = conn.execute(
+                f"SELECT code, label, value, unit, "  # noqa: S608
+                "period_start, period_end, site, agent, channel, computed_at "
+                f"FROM {self.TABLE_NAME} "
+                "WHERE period_start = ? AND period_end = ?",
+                (period_start, period_end),
+            )
+            rows = cursor.fetchall()
+        except sqlite3.Error as exc:
+            raise PersistenceError(
+                "Lecture des KPI pour la période impossible",
+                operation="select",
+                details=str(exc),
+            ) from exc
+
+        results: list[dict[str, object]] = []
+        for row in rows:
+            results.append(
+                {
+                    "code": row[0],
+                    "label": row[1],
+                    "value": row[2],
+                    "unit": row[3],
+                    "period_start": row[4],
+                    "period_end": row[5],
+                    "site": row[6],
+                    "agent": row[7],
+                    "channel": row[8],
+                    "computed_at": row[9],
+                }
+            )
+        logger.info(
+            "%d KPI chargés pour la période %s → %s",
+            len(results),
+            period_start,
+            period_end,
+        )
+        return results
+
     def delete_for_period(self, period_start: str, period_end: str) -> int:
         """Supprime tous les KPI d'une période (bornes inclusives).
 

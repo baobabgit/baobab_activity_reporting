@@ -3,6 +3,19 @@
 Ce package fournit l'ossature du projet de reporting d'activité Baobab.
 """
 
+from baobab_activity_reporting.application.compute_metrics_use_case import (
+    ComputeMetricsUseCase,
+)
+from baobab_activity_reporting.application.generate_report_use_case import (
+    GenerateReportUseCase,
+)
+from baobab_activity_reporting.application.import_sources_use_case import (
+    ImportSourcesUseCase,
+)
+from baobab_activity_reporting.application.report_definition_resolver import (
+    resolve_report_definition,
+)
+from baobab_activity_reporting.application.reporting_service import ReportingService
 from baobab_activity_reporting.core.package_metadata import PackageMetadata
 from baobab_activity_reporting.domain.models.agent import Agent
 from baobab_activity_reporting.domain.models.kpi import Kpi
@@ -97,12 +110,15 @@ __all__: list[str] = [
     "Agent",
     "AgentKpiCalculator",
     "ApplicationException",
+    "ComputeMetricsUseCase",
     "ConfigurationException",
     "ConsolidatedDataSchema",
     "DataAvailability",
     "DocxWriter",
     "ExtractionError",
     "ExtractionResult",
+    "GenerateReportUseCase",
+    "ImportSourcesUseCase",
     "InsightBuilder",
     "Kpi",
     "KpiComputationError",
@@ -120,6 +136,7 @@ __all__: list[str] = [
     "ReportPlanner",
     "ReportingError",
     "ReportingPeriod",
+    "ReportingService",
     "ResolutionError",
     "SectionDecision",
     "SectionEligibilityEvaluator",
@@ -131,4 +148,5 @@ __all__: list[str] = [
     "ValidationError",
     "ValidationResult",
     "WriterError",
+    "resolve_report_definition",
 ]
