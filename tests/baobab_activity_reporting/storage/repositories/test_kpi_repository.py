@@ -34,6 +34,9 @@ class TestKpiRepository:
         assert results[0]["code"] == "nb_appels"
         assert results[0]["value"] == 42.0
         assert results[0]["unit"] == "appels"
+        assert results[0]["site"] is None
+        assert results[0]["agent"] is None
+        assert results[0]["channel"] is None
 
     def test_save_with_period(self, session: DatabaseSessionManager) -> None:
         """Vérifie l'insertion avec période."""
@@ -75,6 +78,32 @@ class TestKpiRepository:
         deleted = repo.delete_by_code("del")
         assert deleted == 1
         assert repo.load_by_code("del") == []
+
+    def test_save_with_dimensions(self, session: DatabaseSessionManager) -> None:
+        """Vérifie la persistance avec site, agent et canal."""
+        repo = KpiRepository(session)
+        repo.save_kpi(
+            "x",
+            "X",
+            1.0,
+            site="Paris",
+            agent="Jean",
+            channel="EFI",
+        )
+        results = repo.load_by_code("x")
+        assert results[0]["site"] == "Paris"
+        assert results[0]["agent"] == "Jean"
+        assert results[0]["channel"] == "EFI"
+
+    def test_delete_for_period(self, session: DatabaseSessionManager) -> None:
+        """Vérifie la suppression ciblée par période."""
+        repo = KpiRepository(session)
+        repo.save_kpi("a", "A", 1.0, period_start="2026-01-01", period_end="2026-01-31")
+        repo.save_kpi("b", "B", 2.0, period_start="2026-02-01", period_end="2026-02-28")
+        deleted = repo.delete_for_period("2026-01-01", "2026-01-31")
+        assert deleted == 1
+        codes = {row["code"] for row in repo.load_all()}
+        assert codes == {"b"}
 
     def test_delete_nonexistent(self, session: DatabaseSessionManager) -> None:
         """Vérifie la suppression d'un code inexistant."""

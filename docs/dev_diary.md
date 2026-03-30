@@ -1,5 +1,33 @@
 # Journal de développement — baobab-activity-reporting
 
+## 2026-03-30 12:00:00
+
+### Modifications
+
+- Sous-package `processing/kpi/` : agrégation par période (`PeriodAggregator`),
+  par site, agent et canal (`ActivityAggregator`), calculateurs
+  `TelephonyKpiCalculator`, `SiteKpiCalculator`, `AgentKpiCalculator`, pipeline
+  rejouable `KpiComputationPipeline` branché sur `PreparedDataRepository` et
+  `KpiRepository`.
+- Schéma SQLite : colonnes optionnelles `site`, `agent`, `channel` sur
+  `kpi_data`, migration automatique pour les bases existantes, méthode
+  `delete_for_period` sur `KpiRepository`.
+- Exception `KpiComputationError` ; classe `ConsolidatedDataSchema` pour les
+  noms de sources et colonnes canoniques.
+- Catalogue documenté des KPI : `docs/kpi_metrics_catalog.md`.
+- Passage en version 0.6.0 ; couverture de tests globale environ 95 %.
+
+### Buts
+
+- Calculer et persister les indicateurs à partir des données préparées sans
+  logique de rendu ni writers.
+- Permettre le recalcul idempotent sur une même période.
+
+### Impact
+
+- Les rapports futurs peuvent s'appuyer sur des métriques structurées et
+  filtrables par dimension.
+
 ## 2026-03-26 15:45:00
 
 ### Modifications

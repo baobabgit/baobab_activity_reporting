@@ -31,6 +31,9 @@ from baobab_activity_reporting.exceptions.configuration_exception import (
 from baobab_activity_reporting.exceptions.extraction_error import (
     ExtractionError,
 )
+from baobab_activity_reporting.exceptions.kpi_computation_error import (
+    KpiComputationError,
+)
 from baobab_activity_reporting.exceptions.persistence_error import (
     PersistenceError,
 )
@@ -50,16 +53,43 @@ from baobab_activity_reporting.exceptions.validation_error import (
     ValidationError,
 )
 from baobab_activity_reporting.exceptions.writer_error import WriterError
+from baobab_activity_reporting.processing.kpi.activity_aggregator import (
+    ActivityAggregator,
+)
+from baobab_activity_reporting.processing.kpi.agent_kpi_calculator import (
+    AgentKpiCalculator,
+)
+from baobab_activity_reporting.processing.kpi.consolidated_data_schema import (
+    ConsolidatedDataSchema,
+)
+from baobab_activity_reporting.processing.kpi.kpi_computation_pipeline import (
+    KpiComputationPipeline,
+)
+from baobab_activity_reporting.processing.kpi.period_aggregator import (
+    PeriodAggregator,
+)
+from baobab_activity_reporting.processing.kpi.site_kpi_calculator import (
+    SiteKpiCalculator,
+)
+from baobab_activity_reporting.processing.kpi.telephony_kpi_calculator import (
+    TelephonyKpiCalculator,
+)
 
 __all__: list[str] = [
+    "ActivityAggregator",
     "Agent",
+    "AgentKpiCalculator",
     "ApplicationException",
     "ConfigurationException",
+    "ConsolidatedDataSchema",
     "DataAvailability",
     "ExtractionError",
     "ExtractionResult",
     "Kpi",
+    "KpiComputationError",
+    "KpiComputationPipeline",
     "PackageMetadata",
+    "PeriodAggregator",
     "PersistenceError",
     "ReportGenerationError",
     "ReportingError",
@@ -67,7 +97,9 @@ __all__: list[str] = [
     "ResolutionError",
     "SectionDecision",
     "Site",
+    "SiteKpiCalculator",
     "StandardizationError",
+    "TelephonyKpiCalculator",
     "ValidationError",
     "ValidationResult",
     "WriterError",

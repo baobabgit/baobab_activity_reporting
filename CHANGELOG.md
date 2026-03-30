@@ -5,6 +5,20 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-03-30
+
+### Added
+
+- Calcul des KPI et agrégations : `PeriodAggregator`, `ActivityAggregator`,
+  `TelephonyKpiCalculator`, `SiteKpiCalculator`, `AgentKpiCalculator`,
+  `KpiComputationPipeline`, `ConsolidatedDataSchema`.
+- Exception métier `KpiComputationError` pour les erreurs de calcul ou de données.
+- Schéma `kpi_data` enrichi (`site`, `agent`, `channel`) avec migration SQLite
+  automatique ; `KpiRepository.save_kpi` et lectures associées ; suppression par
+  période `delete_for_period` pour rejouer le pipeline.
+- Documentation du catalogue des KPI dans `docs/kpi_metrics_catalog.md`.
+- Tests unitaires et d'intégration sur le sous-package `processing/kpi/`.
+
 ## [0.5.0] - 2026-03-26
 
 ### Added

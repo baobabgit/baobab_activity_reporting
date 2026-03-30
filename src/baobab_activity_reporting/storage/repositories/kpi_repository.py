@@ -37,7 +37,7 @@ class KpiRepository:
         """
         self.session_manager: DatabaseSessionManager = session_manager
 
-    def save_kpi(
+    def save_kpi(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self,
         code: str,
         label: str,
@@ -45,6 +45,9 @@ class KpiRepository:
         unit: str | None = None,
         period_start: str | None = None,
         period_end: str | None = None,
+        site: str | None = None,
+        agent: str | None = None,
+        channel: str | None = None,
     ) -> None:
         """Persiste un indicateur calculé.
 
@@ -60,15 +63,32 @@ class KpiRepository:
         :type period_start: str | None
         :param period_end: Fin de la période (ISO 8601).
         :type period_end: str | None
+        :param site: Site pour les agrégations dimensionnelles.
+        :type site: str | None
+        :param agent: Agent pour les agrégations dimensionnelles.
+        :type agent: str | None
+        :param channel: Canal pour les agrégations dimensionnelles.
+        :type channel: str | None
         :raises PersistenceError: Si l'insertion échoue.
         """
         conn = self.session_manager.connection
         try:
             conn.execute(
                 f"INSERT INTO {self.TABLE_NAME} "  # noqa: S608
-                "(code, label, value, unit, period_start, period_end) "
-                "VALUES (?, ?, ?, ?, ?, ?)",
-                (code, label, value, unit, period_start, period_end),
+                "(code, label, value, unit, period_start, period_end, "
+                "site, agent, channel) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    code,
+                    label,
+                    value,
+                    unit,
+                    period_start,
+                    period_end,
+                    site,
+                    agent,
+                    channel,
+                ),
             )
             conn.commit()
         except sqlite3.Error as exc:
@@ -92,7 +112,7 @@ class KpiRepository:
         try:
             cursor = conn.execute(
                 f"SELECT code, label, value, unit, "  # noqa: S608
-                "period_start, period_end, computed_at "
+                "period_start, period_end, site, agent, channel, computed_at "
                 f"FROM {self.TABLE_NAME} WHERE code = ?",
                 (code,),
             )
@@ -114,7 +134,10 @@ class KpiRepository:
                     "unit": row[3],
                     "period_start": row[4],
                     "period_end": row[5],
-                    "computed_at": row[6],
+                    "site": row[6],
+                    "agent": row[7],
+                    "channel": row[8],
+                    "computed_at": row[9],
                 }
             )
         logger.info(
@@ -135,7 +158,7 @@ class KpiRepository:
         try:
             cursor = conn.execute(
                 f"SELECT code, label, value, unit, "  # noqa: S608
-                "period_start, period_end, computed_at "
+                "period_start, period_end, site, agent, channel, computed_at "
                 f"FROM {self.TABLE_NAME}",
             )
             rows = cursor.fetchall()
@@ -156,11 +179,50 @@ class KpiRepository:
                     "unit": row[3],
                     "period_start": row[4],
                     "period_end": row[5],
-                    "computed_at": row[6],
+                    "site": row[6],
+                    "agent": row[7],
+                    "channel": row[8],
+                    "computed_at": row[9],
                 }
             )
         logger.info("%d KPI chargés au total", len(results))
         return results
+
+    def delete_for_period(self, period_start: str, period_end: str) -> int:
+        """Supprime tous les KPI d'une période (bornes inclusives).
+
+        Utilisé pour rejouer le calcul sans dupliquer les lignes.
+
+        :param period_start: Début ISO 8601 (date).
+        :type period_start: str
+        :param period_end: Fin ISO 8601 (date).
+        :type period_end: str
+        :return: Nombre de lignes supprimées.
+        :rtype: int
+        :raises PersistenceError: Si la suppression échoue.
+        """
+        conn = self.session_manager.connection
+        try:
+            cursor = conn.execute(
+                f"DELETE FROM {self.TABLE_NAME} "  # noqa: S608
+                "WHERE period_start = ? AND period_end = ?",
+                (period_start, period_end),
+            )
+            conn.commit()
+        except sqlite3.Error as exc:
+            raise PersistenceError(
+                "Suppression des KPI pour la période impossible",
+                operation="delete",
+                details=str(exc),
+            ) from exc
+        count: int = cursor.rowcount
+        logger.info(
+            "%d KPI supprimés pour la période %s → %s",
+            count,
+            period_start,
+            period_end,
+        )
+        return count
 
     def delete_by_code(self, code: str) -> int:
         """Supprime les KPI par code.

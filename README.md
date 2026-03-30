@@ -9,7 +9,8 @@ Ce projet fournit une API Python capable de :
 1. extraire des données issues de plusieurs fichiers sources ;
 2. nettoyer, normaliser et valider ces données ;
 3. appliquer des règles métier pour relier les données entre elles ;
-4. calculer des indicateurs d'activité ;
+4. calculer des indicateurs d'activité (agrégations par période, site, agent,
+   canal, pipeline `KpiComputationPipeline`) ;
 5. stocker les données calculées ;
 6. générer un rapport d'activité structuré et exportable.
 
@@ -32,6 +33,43 @@ from baobab_activity_reporting import PackageMetadata
 
 meta = PackageMetadata()
 print(meta.summary())
+```
+
+### Calcul des KPI (données préparées en SQLite)
+
+Les indicateurs sont calculés à partir des tables préparées
+(`appels_entrants`, `appels_sortants`, `tickets`) et stockés dans `kpi_data`.
+Voir `docs/kpi_metrics_catalog.md` pour la liste des codes produits.
+
+```python
+from datetime import date
+
+from baobab_activity_reporting import KpiComputationPipeline, ReportingPeriod
+from baobab_activity_reporting.storage.repositories.kpi_repository import (
+    KpiRepository,
+)
+from baobab_activity_reporting.storage.repositories.prepared_data_repository import (
+    PreparedDataRepository,
+)
+from baobab_activity_reporting.storage.sqlite.database_session_manager import (
+    DatabaseSessionManager,
+)
+
+manager = DatabaseSessionManager("reporting.db")
+try:
+    prepared = PreparedDataRepository(manager)
+    kpis = KpiRepository(manager)
+    period = ReportingPeriod(date(2026, 1, 1), date(2026, 1, 31))
+    pipeline = KpiComputationPipeline(
+        prepared,
+        kpis,
+        period,
+        clear_existing_for_period=True,
+    )
+    summary = pipeline.run()
+    print(summary)
+finally:
+    manager.close()
 ```
 
 ## Outils de qualité
@@ -119,6 +157,15 @@ src/
         dataset_validator.py
         schema_registry.py
         validation_rule.py
+      kpi/
+        __init__.py
+        activity_aggregator.py
+        agent_kpi_calculator.py
+        consolidated_data_schema.py
+        kpi_computation_pipeline.py
+        period_aggregator.py
+        site_kpi_calculator.py
+        telephony_kpi_calculator.py
     storage/
       __init__.py
       sqlite/
@@ -154,6 +201,7 @@ tests/
         test_validation_result.py
     exceptions/
       test_application_exception.py
+      test_kpi_computation_error.py
       test_configuration_exception.py
       test_extraction_error.py
       test_persistence_error.py
@@ -173,6 +221,13 @@ tests/
     processing/
       cleaning/
         test_data_cleaner.py
+      kpi/
+        test_activity_aggregator.py
+        test_agent_kpi_calculator.py
+        test_kpi_computation_pipeline.py
+        test_period_aggregator.py
+        test_site_kpi_calculator.py
+        test_telephony_kpi_calculator.py
       normalization/
         test_column_mapper.py
         test_data_type_normalizer.py
