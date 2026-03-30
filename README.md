@@ -372,21 +372,6 @@ tests/
         test_period_aggregator.py
         test_site_kpi_calculator.py
         test_telephony_kpi_calculator.py
-      reporting/
-        writers/
-          test_abstract_writer.py
-          test_docx_writer.py
-          test_markdown_writer.py
-          test_writers_integration.py
-        test_insight_builder.py
-        test_narrative_builder.py
-        test_report_builder.py
-        test_report_context.py
-        test_report_definition.py
-        test_report_model.py
-        test_report_planner.py
-        test_section_eligibility_evaluator.py
-        test_table_builder.py
       normalization/
         test_column_mapper.py
         test_data_type_normalizer.py
