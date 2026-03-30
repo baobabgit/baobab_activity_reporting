@@ -37,6 +37,9 @@ CREATE TABLE IF NOT EXISTS kpi_data (
     unit TEXT,
     period_start TEXT,
     period_end TEXT,
+    site TEXT,
+    agent TEXT,
+    channel TEXT,
     computed_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 """
@@ -81,6 +84,7 @@ class DatabaseSessionManager:
         self._connection: sqlite3.Connection | None = None
         self._connect()
         self._initialize_schema()
+        self._migrate_kpi_table_if_needed()
 
     def _connect(self) -> None:
         """Établit la connexion à la base SQLite.
@@ -114,6 +118,37 @@ class DatabaseSessionManager:
             raise PersistenceError(
                 "Initialisation du schéma impossible",
                 operation="create_tables",
+                details=str(exc),
+            ) from exc
+
+    def _migrate_kpi_table_if_needed(self) -> None:
+        """Ajoute les colonnes de dimension aux anciennes bases ``kpi_data``.
+
+        :raises PersistenceError: Si la migration échoue.
+        """
+        conn = self.connection
+        try:
+            cursor = conn.execute("PRAGMA table_info(kpi_data)")
+            existing = {row[1] for row in cursor.fetchall()}
+            alters: list[str] = []
+            if "site" not in existing:
+                alters.append("ALTER TABLE kpi_data ADD COLUMN site TEXT")
+            if "agent" not in existing:
+                alters.append("ALTER TABLE kpi_data ADD COLUMN agent TEXT")
+            if "channel" not in existing:
+                alters.append("ALTER TABLE kpi_data ADD COLUMN channel TEXT")
+            for stmt in alters:
+                conn.execute(stmt)
+            if alters:
+                conn.commit()
+                logger.info(
+                    "Migration kpi_data : %d colonnes ajoutées",
+                    len(alters),
+                )
+        except sqlite3.Error as exc:
+            raise PersistenceError(
+                "Migration de la table kpi_data impossible",
+                operation="migrate_kpi",
                 details=str(exc),
             ) from exc
 

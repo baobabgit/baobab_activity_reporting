@@ -12,6 +12,9 @@ from baobab_activity_reporting.exceptions.configuration_exception import (
 from baobab_activity_reporting.exceptions.extraction_error import (
     ExtractionError,
 )
+from baobab_activity_reporting.exceptions.kpi_computation_error import (
+    KpiComputationError,
+)
 from baobab_activity_reporting.exceptions.persistence_error import (
     PersistenceError,
 )
@@ -36,6 +39,7 @@ __all__: list[str] = [
     "ApplicationException",
     "ConfigurationException",
     "ExtractionError",
+    "KpiComputationError",
     "PersistenceError",
     "ReportGenerationError",
     "ReportingError",
