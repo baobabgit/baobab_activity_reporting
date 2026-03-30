@@ -5,6 +5,22 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-03-30
+
+### Added
+
+- Couche applicative : ``ImportSourcesUseCase``, ``ComputeMetricsUseCase``,
+  ``GenerateReportUseCase``, façade ``ReportingService`` ; résolution des types
+  de rapport via ``resolve_report_definition`` (``ConfigurationException`` si
+  identifiant inconnu).
+- CLI ``baobab-reporting`` (sous-commandes ``import``, ``compute``, ``generate``)
+  déclarée dans ``[project.scripts]`` ; sortie JSON sur stdout.
+- ``KpiRepository.load_for_period`` pour alimenter ``ReportContext`` sans
+  filtrer tous les KPI ; sur ``BaseExtractor``, ``load_dataframe`` et
+  ``extraction_result_from_dataframe`` pour un import sans double lecture CSV.
+- Documentation ``docs/end_to_end_pipeline.md`` ; tests miroir sous
+  ``tests/.../application/`` et ``tests/.../cli/``.
+
 ## [0.8.0] - 2026-03-30
 
 ### Added

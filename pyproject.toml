@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "baobab-activity-reporting"
-version = "0.8.0"
+version = "0.9.0"
 description = "API Python de reporting d'activité pour Baobab."
 readme = "README.md"
 license = {text = "MIT"}
@@ -27,6 +27,9 @@ dependencies = [
     "pandas>=2.1.0,<3.0.0",
     "python-docx>=1.1.0,<2.0.0",
 ]
+
+[project.scripts]
+baobab-reporting = "baobab_activity_reporting.cli.main:main"
 
 [project.optional-dependencies]
 dev = [

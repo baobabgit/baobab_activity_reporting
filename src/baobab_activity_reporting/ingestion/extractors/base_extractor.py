@@ -51,17 +51,16 @@ class BaseExtractor(ABC):
         :rtype: CsvExtractionConfiguration
         """
 
-    def extract(self, source_path: str) -> ExtractionResult:
-        """Extrait les données d'un fichier CSV.
+    def load_dataframe(self, source_path: str) -> pd.DataFrame:
+        """Charge le fichier CSV avec la configuration de l'extracteur.
 
-        Lit le fichier indiqué par ``source_path`` en utilisant
-        la configuration de l'extracteur, puis retourne un
-        :class:`ExtractionResult` contenant les métadonnées.
+        Effectue les mêmes contrôles d'existence que :meth:`extract`
+        sans construire de :class:`ExtractionResult`.
 
         :param source_path: Chemin vers le fichier CSV.
         :type source_path: str
-        :return: Résultat de l'extraction.
-        :rtype: ExtractionResult
+        :return: Données brutes lues.
+        :rtype: pd.DataFrame
         :raises ExtractionError: Si le fichier est introuvable
             ou si la lecture échoue.
         """
@@ -70,7 +69,7 @@ class BaseExtractor(ABC):
         config = self.configuration
 
         logger.info(
-            "Début extraction : %s (label=%s)",
+            "Chargement CSV : %s (label=%s)",
             source_name,
             config.source_label,
         )
@@ -103,6 +102,31 @@ class BaseExtractor(ABC):
                 details=str(exc),
             ) from exc
 
+        logger.info(
+            "Fichier chargé : %s — %d lignes, %d colonnes",
+            source_name,
+            len(dataframe),
+            len(dataframe.columns),
+        )
+        return dataframe
+
+    def extraction_result_from_dataframe(
+        self,
+        source_name: str,
+        dataframe: pd.DataFrame,
+    ) -> ExtractionResult:
+        """Construit un :class:`ExtractionResult` pour un jeu déjà chargé.
+
+        Utile pour éviter une double lecture après :meth:`load_dataframe`.
+
+        :param source_name: Nom court du fichier source.
+        :type source_name: str
+        :param dataframe: Données correspondantes.
+        :type dataframe: pd.DataFrame
+        :return: Métadonnées d'extraction (avertissements colonnes, etc.).
+        :rtype: ExtractionResult
+        """
+        config = self.configuration
         warnings: list[str] = []
         column_names = list(dataframe.columns.astype(str))
 
@@ -132,3 +156,21 @@ class BaseExtractor(ABC):
             column_names=column_names,
             warnings=warnings if warnings else None,
         )
+
+    def extract(self, source_path: str) -> ExtractionResult:
+        """Extrait les métadonnées d'un fichier CSV.
+
+        Lit le fichier indiqué par ``source_path`` en utilisant
+        la configuration de l'extracteur, puis retourne un
+        :class:`ExtractionResult`.
+
+        :param source_path: Chemin vers le fichier CSV.
+        :type source_path: str
+        :return: Résultat de l'extraction.
+        :rtype: ExtractionResult
+        :raises ExtractionError: Si le fichier est introuvable
+            ou si la lecture échoue.
+        """
+        path = Path(source_path)
+        dataframe = self.load_dataframe(source_path)
+        return self.extraction_result_from_dataframe(path.name, dataframe)

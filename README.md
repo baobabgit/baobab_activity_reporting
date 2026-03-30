@@ -14,7 +14,8 @@ Ce projet fournit une API Python capable de :
 5. stocker les données calculées ;
 6. planifier et construire un modèle éditorial (`ReportModel`) à partir des KPI,
    sans dépendance au format de sortie — voir `docs/report_types.md` ;
-7. (extensions futures) exporter ce modèle vers des formats documentaires.
+7. exporter ce modèle vers des formats documentaires (DOCX, Markdown) ;
+8. orchestrer l’ensemble via une façade applicative (`ReportingService`) et une CLI.
 
 ## Installation
 
@@ -114,6 +115,65 @@ DocxWriter().write(model, Path("rapport.docx"))
 MarkdownWriter().write(model, Path("rapport.md"))
 ```
 
+### Façade applicative et chaîne complète
+
+Les cas d’usage `ImportSourcesUseCase`, `ComputeMetricsUseCase` et
+`GenerateReportUseCase` enrobent respectivement l’ingestion CSV → SQLite,
+le `KpiComputationPipeline` et le `ReportBuilder` (+ writers optionnels).
+`ReportingService` les expose avec une seule session SQLite.
+
+Guide pas à pas : `docs/end_to_end_pipeline.md`.
+
+```python
+from datetime import date
+
+from baobab_activity_reporting import (
+    ReportDefinition,
+    ReportingPeriod,
+    ReportingService,
+)
+
+service = ReportingService("reporting.db")
+try:
+    service.import_sources("incoming.csv", "outgoing.csv", "tickets.csv")
+    period = ReportingPeriod(date(2026, 3, 1), date(2026, 3, 31))
+    service.compute_metrics(period, clear_existing_for_period=True)
+    model = service.generate_report(
+        period,
+        ReportDefinition.activity_telephony(),
+        markdown_path="rapport.md",
+    )
+finally:
+    service.close()
+```
+
+### Interface en ligne de commande
+
+Après installation du package, la commande `baobab-reporting` enregistre les
+trois étapes (`import`, `compute`, `generate`). Exemple :
+
+```bash
+baobab-reporting --log-level INFO import \
+  --database reporting.db \
+  --incoming data/incoming.csv \
+  --outgoing data/outgoing.csv \
+  --tickets data/tickets.csv
+```
+
+```bash
+baobab-reporting compute --database reporting.db \
+  --period-start 2026-03-01 --period-end 2026-03-31 --clear-period
+```
+
+```bash
+baobab-reporting generate --database reporting.db \
+  --period-start 2026-03-01 --period-end 2026-03-31 \
+  --report-type activity_telephony --markdown rapport.md
+```
+
+Les sous-commandes émettent du JSON sur la sortie standard (résumés ou
+métadonnées du rapport).
+
 ## Outils de qualité
 
 Le projet utilise les outils suivants, tous configurés dans `pyproject.toml` :
@@ -148,6 +208,16 @@ src/
     core/
       __init__.py
       package_metadata.py
+    application/
+      __init__.py
+      compute_metrics_use_case.py
+      generate_report_use_case.py
+      import_sources_use_case.py
+      report_definition_resolver.py
+      reporting_service.py
+    cli/
+      __init__.py
+      main.py
     domain/
       __init__.py
       models/
@@ -244,6 +314,14 @@ tests/
     empty.csv
     malformed.csv
   baobab_activity_reporting/
+    application/
+      test_compute_metrics_use_case.py
+      test_generate_report_use_case.py
+      test_import_sources_use_case.py
+      test_report_definition_resolver.py
+      test_reporting_service.py
+    cli/
+      test_main.py
     core/
       test_package_metadata.py
     domain/
@@ -310,6 +388,21 @@ tests/
         test_dataset_validator.py
         test_schema_registry.py
         test_validation_rule.py
+    reporting/
+      writers/
+        test_abstract_writer.py
+        test_docx_writer.py
+        test_markdown_writer.py
+        test_writers_integration.py
+      test_insight_builder.py
+      test_narrative_builder.py
+      test_report_builder.py
+      test_report_context.py
+      test_report_definition.py
+      test_report_model.py
+      test_report_planner.py
+      test_section_eligibility_evaluator.py
+      test_table_builder.py
     storage/
       sqlite/
         test_database_session_manager.py
@@ -320,6 +413,10 @@ tests/
         test_report_data_repository.py
 docs/
   dev_diary.md
+  document_writers.md
+  end_to_end_pipeline.md
+  kpi_metrics_catalog.md
+  report_types.md
   tests/
     coverage/
 ```
