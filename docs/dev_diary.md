@@ -1,5 +1,30 @@
 # Journal de développement — baobab-activity-reporting
 
+## 2026-03-30 18:00:00
+
+### Modifications
+
+- Sous-package `reporting/` : définitions de rapport (`ReportDefinition`),
+  contexte KPI + période (`ReportContext`), évaluation d'éligibilité des
+  sections (`SectionEligibilityEvaluator`, réutilise `SectionDecision`),
+  planification (`ReportPlanner`), construction de narratifs, tableaux et
+  insights (`NarrativeBuilder`, `TableBuilder`, `InsightBuilder`),
+  orchestrateur `ReportBuilder`, livrable `ReportModel` avec export
+  `to_document_tree()` sans dépendance au format documentaire.
+- Erreurs via `ReportGenerationError` lorsque aucune section n'est éligible.
+- Documentation `docs/report_types.md` ; exports racine du package.
+- Passage en version 0.7.0.
+
+### Buts
+
+- Transformer les KPI en structure éditoriale exploitable par des writers
+  ultérieurs (hors périmètre : DOCX/Markdown).
+
+### Impact
+
+- Sections sans données requises sont exclues automatiquement ; téléphonie,
+  site et agent sont couverts par des fabriques dédiées.
+
 ## 2026-03-30 12:00:00
 
 ### Modifications

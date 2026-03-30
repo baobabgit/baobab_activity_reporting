@@ -5,6 +5,19 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-03-30
+
+### Added
+
+- Planification et construction éditoriale : sous-package `reporting/` avec
+  `ReportDefinition`, `ReportContext`, `SectionEligibilityEvaluator`,
+  `ReportPlanner`, `NarrativeBuilder`, `TableBuilder`, `InsightBuilder`,
+  `ReportBuilder`, `ReportModel`.
+- Rapports prêts à l'emploi : `activity_telephony`, `activity_by_site`,
+  `activity_by_agent` ; sections conditionnelles selon les KPI disponibles.
+- Documentation des types de rapports : `docs/report_types.md`.
+- Tests unitaires et d'intégration pour le moteur éditorial.
+
 ## [0.6.0] - 2026-03-30
 
 ### Added

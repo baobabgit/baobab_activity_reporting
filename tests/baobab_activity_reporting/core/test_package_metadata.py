@@ -59,4 +59,4 @@ class TestPackageMetadata:
     def test_version_matches_pyproject(self) -> None:
         """Vérifie que la version correspond à celle du pyproject."""
         meta = PackageMetadata()
-        assert meta.package_version == "0.6.0"
+        assert meta.package_version == "0.7.0"
