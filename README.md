@@ -199,6 +199,12 @@ bandit -r src/ -c pyproject.toml
 pytest
 ```
 
+### Chaîne de validation complète (une seule commande)
+
+```bash
+black --check src/ tests/ && pylint src/ && flake8 src/ tests/ && mypy src/ && bandit -r src/ -c pyproject.toml && pytest
+```
+
 ## Structure du projet
 
 ```
@@ -237,6 +243,7 @@ src/
       application_exception.py
       configuration_exception.py
       extraction_error.py
+      kpi_computation_error.py
       persistence_error.py
       report_generation_error.py
       reporting_error.py
@@ -309,6 +316,7 @@ tests/
   conftest.py
   fixtures/
     incoming_calls.csv
+    incoming_calls_missing_cols.csv
     outgoing_calls.csv
     tickets.csv
     empty.csv
