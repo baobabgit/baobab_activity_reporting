@@ -25,3 +25,6 @@ class ConsolidatedDataSchema:
     COL_DESTINATION: str = "Destination"
     COL_CHANNEL: str = "Canal"
     COL_CATEGORY: str = "Catégorie"
+
+    COL_MEASURE_NAMES: str = "Noms de mesures"
+    MEASURE_COMMUNICATION_DURATION: str = "Durée de communication"

@@ -8,12 +8,16 @@ from baobab_activity_reporting.ingestion.extractors.csv_extraction_configuration
 )
 
 _EXPECTED_COLUMNS: list[str] = [
-    "Date",
-    "Heure",
-    "Agent",
-    "Site",
-    "Durée",
-    "Destination",
+    "Catégorie de qualification",
+    "Début d'appel",
+    "Fin d'appel",
+    "ID de l'appel",
+    "Motif de qualification",
+    "Nom de l'agent",
+    "Noms de mesures",
+    "Numéro appelant",
+    "Numéro appelé",
+    "Valeurs de mesures",
 ]
 
 

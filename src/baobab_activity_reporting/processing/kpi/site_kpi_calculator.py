@@ -133,11 +133,20 @@ class SiteKpiCalculator:
                 )
 
         if len(outgoing) > 0:
-            site_col_o = self.activity_aggregator.resolve_site_column(outgoing)
+            site_col_o = self.activity_aggregator.resolve_site_column_optional(outgoing)
             dur_col_o = self.telephony_calculator.resolve_duration_column(outgoing)
             sec_o = self.telephony_calculator.duration_series_to_seconds(outgoing[dur_col_o])
-            out = outgoing.assign(_sec=sec_o.fillna(0.0))
-            grouped_o = out.groupby(site_col_o, dropna=False)["_sec"].agg(["count", "sum"])
+            if site_col_o is None:
+                out = outgoing.assign(
+                    _sec=sec_o.fillna(0.0),
+                    _site_key="—",
+                )
+            else:
+                out = outgoing.assign(
+                    _sec=sec_o.fillna(0.0),
+                    _site_key=outgoing[site_col_o].astype(str),
+                )
+            grouped_o = out.groupby("_site_key", dropna=False)["_sec"].agg(["count", "sum"])
             for site_key, row in grouped_o.iterrows():
                 site_label = str(site_key)
                 count = float(row["count"])

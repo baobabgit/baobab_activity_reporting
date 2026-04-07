@@ -1,6 +1,6 @@
-Numéro;Date;Agent;Site;Canal;Catégorie
-T001;2026-03-01;Dupont Marie;Paris Nord;téléphone;demande
-T002;2026-03-01;Martin Jean;Lyon Sud;EFI;réclamation
-T003;2026-03-01;Durand Pierre;Paris Nord;EDI;information
-T004;2026-03-01;Bernard Sophie;Marseille;téléphone;demande
-T005;2026-03-01;Dupont Marie;Paris Nord;EFI;réclamation
+Numero Formulaire;Date-Heure Depot Formulaire;Date Dernier Envoi Demandeur;Type Formulaire;Numero Ticket;Date-Heure Prise en Charge Ticket;Date-Heure Creation Ticket;Date-Heure Resolution Ticket;Date-Heure Cloture Ticket;Type Canal Ticket;Nature Ticket;Niveau Priorite Ticket;Type Ticket;Statut Ticket;Type Contact;Identifiant Contact;Email Contact;Telephone Secondaire Contact;Telephone Principal Contact;Groupe Creation Ticket;Type GR Creation;Domaine Creation Ticket;Site Repartition Ticket;Niveau Groupe Resolution;Type Groupe Resolution;Domaine Metier;Nom Agent Proprietaire Ticket;Prenom Agent Proprietaire Ticket;Nom Agent Qualification Ticket;Prenom Agent Qualification Ticket;Site Agent Qualification Ticket;Nom Agent Resolution Ticket;Prenom Agent Resolution Ticket;Groupe Qualification Ticket;Niveau  GR Qualification;Type GR  Qualification;Domaine Qualification Ticket
+F001;2026-03-01 08:00:00;;EDI;T001;;;;;telephone;demande;;;Clos;;;;;;;;Paris Nord;;;;Dupont;Marie;;;;;;;
+F002;2026-03-01 09:00:00;;EDI;T002;;;;;EFI;reclamation;;;Clos;;;;;;;;Lyon Sud;;;;Martin;Jean;;;;;;;
+F003;2026-03-01 10:00:00;;EDI;T003;;;;;EDI;information;;;Clos;;;;;;;;Paris Nord;;;;Durand;Pierre;;;;;;;
+F004;2026-03-01 11:00:00;;EDI;T004;;;;;telephone;demande;;;Clos;;;;;;;;Marseille;;;;Bernard;Sophie;;;;;;;
+F005;2026-03-01 12:00:00;;EDI;T005;;;;;EFI;reclamation;;;Clos;;;;;;;;Paris Nord;;;;Dupont;Marie;;;;;;;

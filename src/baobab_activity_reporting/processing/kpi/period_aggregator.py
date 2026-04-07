@@ -38,7 +38,12 @@ class PeriodAggregator:
 
     def __init__(
         self,
-        date_column_candidates: tuple[str, ...] = ("Date", "date"),
+        date_column_candidates: tuple[str, ...] = (
+            "Date",
+            "date",
+            "Début d'appel",
+            "Date-Heure Depot Formulaire",
+        ),
     ) -> None:
         """Initialise l'agrégateur de période.
 

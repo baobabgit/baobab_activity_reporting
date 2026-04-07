@@ -25,9 +25,9 @@ class TestCsvIncomingCallsExtractor:
         assert config.separator == ";"
         assert config.encoding == "utf-8"
         assert config.source_label == "appels_entrants"
-        assert "Date" in config.expected_columns
-        assert "Agent" in config.expected_columns
-        assert "Statut" in config.expected_columns
+        assert "Début d'appel" in config.expected_columns
+        assert "Nom de l'agent" in config.expected_columns
+        assert "Valeurs de mesures" in config.expected_columns
 
     def test_custom_configuration(self) -> None:
         """Vérifie l'utilisation d'une configuration personnalisée."""
@@ -55,7 +55,7 @@ class TestCsvIncomingCallsExtractor:
         result = extractor.extract(str(fixtures_dir / "incoming_calls_missing_cols.csv"))
         assert result.success is True
         assert len(result.warnings) == 1
-        assert "Durée" in result.warnings[0] or "Site" in result.warnings[0]
+        assert "Flux" in result.warnings[0] or "Service" in result.warnings[0]
 
     def test_extract_file_not_found(self, tmp_path: Path) -> None:
         """Vérifie l'exception si le fichier n'existe pas."""

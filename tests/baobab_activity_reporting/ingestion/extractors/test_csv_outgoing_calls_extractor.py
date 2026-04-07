@@ -25,8 +25,8 @@ class TestCsvOutgoingCallsExtractor:
         assert config.separator == ";"
         assert config.encoding == "utf-8"
         assert config.source_label == "appels_sortants"
-        assert "Date" in config.expected_columns
-        assert "Destination" in config.expected_columns
+        assert "Début d'appel" in config.expected_columns
+        assert "Valeurs de mesures" in config.expected_columns
 
     def test_custom_configuration(self) -> None:
         """Vérifie l'utilisation d'une configuration personnalisée."""
@@ -58,7 +58,7 @@ class TestCsvOutgoingCallsExtractor:
         """Vérifie les warnings pour colonnes manquantes."""
         csv_file = tmp_path / "partial.csv"
         csv_file.write_text(
-            "Date;Heure;Agent\n2026-01-01;08:00;Test\n",
+            "Catégorie de qualification;Début d'appel;Fin d'appel\n;;01-01-26 08:00:00\n",
             encoding="utf-8",
         )
         extractor = CsvOutgoingCallsExtractor()

@@ -39,12 +39,24 @@ class ActivityAggregator:
 
     def __init__(
         self,
-        site_column_candidates: tuple[str, ...] = ("Site", "site"),
-        agent_column_candidates: tuple[str, ...] = ("Agent", "agent"),
+        site_column_candidates: tuple[str, ...] = (
+            "Site",
+            "site",
+            "Service",
+            "Site Repartition Ticket",
+            "Site Agent Qualification Ticket",
+        ),
+        agent_column_candidates: tuple[str, ...] = (
+            "Agent",
+            "agent",
+            "Nom de l'agent",
+            "Nom Agent Qualification Ticket",
+        ),
         channel_column_candidates: tuple[str, ...] = (
             "Canal",
             "canal",
             "Channel",
+            "Type Canal Ticket",
         ),
     ) -> None:
         """Initialise l'agrégateur d'activité.
@@ -100,6 +112,22 @@ class ActivityAggregator:
             self.site_column_candidates,
             "site",
         )
+
+    def resolve_site_column_optional(self, dataframe: pd.DataFrame) -> str | None:
+        """Retourne une colonne site si présente, sinon ``None``.
+
+        Utile pour les exports sans site (ex. appels sortants téléphoniques).
+
+        :param dataframe: Données éventuellement sans colonne site.
+        :type dataframe: pd.DataFrame
+        :return: Nom de colonne ou ``None``.
+        :rtype: str | None
+        """
+        cols = set(dataframe.columns.astype(str))
+        for name in self.site_column_candidates:
+            if name in cols:
+                return name
+        return None
 
     def resolve_agent_column(self, dataframe: pd.DataFrame) -> str:
         """Retourne la colonne agent utilisée pour les regroupements.

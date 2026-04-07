@@ -44,6 +44,12 @@ class TestActivityAggregator:
         with pytest.raises(KpiComputationError):
             agg.resolve_site_column(df)
 
+    def test_resolve_site_column_optional(self) -> None:
+        """Vérifie la résolution optionnelle de la colonne site."""
+        agg = ActivityAggregator()
+        assert agg.resolve_site_column_optional(pd.DataFrame({"Service": ["A"]})) == "Service"
+        assert agg.resolve_site_column_optional(pd.DataFrame({"x": [1]})) is None
+
     def test_combine_series(self) -> None:
         """Vérifie la fusion de séries."""
         agg = ActivityAggregator()

@@ -85,6 +85,7 @@ class TelephonyKpiCalculator:
             ConsolidatedDataSchema.COL_DURATION,
             "duree",
             "duration",
+            "Valeurs de mesures",
         ),
     ) -> None:
         """Initialise le calculateur téléphonie.

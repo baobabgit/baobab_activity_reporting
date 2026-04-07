@@ -73,8 +73,8 @@ class TestBaseExtractor:
         assert result.success is True
         assert result.row_count == 5
         assert result.source_name == "incoming_calls.csv"
-        assert "Date" in result.column_names
-        assert "Agent" in result.column_names
+        assert "Début d'appel" in result.column_names
+        assert "Nom de l'agent" in result.column_names
 
     def test_extract_file_not_found(self, tmp_path: Path) -> None:
         """Vérifie l'exception pour un fichier inexistant."""
@@ -113,7 +113,11 @@ class TestBaseExtractor:
         extractor = ConcreteExtractor(
             configuration=CsvExtractionConfiguration(
                 separator=";",
-                expected_columns=["Date", "Heure", "Agent"],
+                expected_columns=[
+                    "Début d'appel",
+                    "Nom de l'agent",
+                    "Flux",
+                ],
             )
         )
         result = extractor.extract(str(fixtures_dir / "incoming_calls.csv"))

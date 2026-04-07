@@ -20,6 +20,9 @@ from baobab_activity_reporting.ingestion.extractors.csv_outgoing_calls_extractor
 from baobab_activity_reporting.ingestion.extractors.csv_ticket_extractor import (
     CsvTicketExtractor,
 )
+from baobab_activity_reporting.processing.cleaning.telephony_communication_measure_filter import (
+    filter_communication_duration_rows,
+)
 from baobab_activity_reporting.processing.kpi.consolidated_data_schema import (
     ConsolidatedDataSchema,
 )
@@ -110,6 +113,9 @@ class ImportSourcesUseCase:
         :param tickets_csv_path: Chemin CSV tickets.
         :type tickets_csv_path: str
         :return: Clé ``sources`` : liste de résumés (clé, lignes, avertissements).
+            Pour ``appels_entrants`` et ``appels_sortants``, clé additionnelle
+            ``rows_excluded_non_communication_measure`` (lignes non « Durée de
+            communication » retirées du jeu préparé).
         :rtype: dict[str, Any]
         """
         schema = ConsolidatedDataSchema
@@ -151,11 +157,25 @@ class ImportSourcesUseCase:
         )
         raw_inserted = self._raw.save(dataframe_raw, source_key)
         prepared_frame: pd.DataFrame = self._standardization.run(dataframe_raw)
+        excluded_measure = 0
+        if source_key in (
+            ConsolidatedDataSchema.SOURCE_INCOMING_CALLS,
+            ConsolidatedDataSchema.SOURCE_OUTGOING_CALLS,
+        ):
+            prepared_frame, excluded_measure = filter_communication_duration_rows(
+                prepared_frame,
+            )
         prepared_inserted = self._prepared.save(prepared_frame, source_key)
-        return {
+        summary: dict[str, Any] = {
             "source_key": source_key,
             "file_name": source_name,
             "rows_raw_saved": raw_inserted,
             "rows_prepared_saved": prepared_inserted,
             "extraction_warnings": list(extraction.warnings),
         }
+        if source_key in (
+            ConsolidatedDataSchema.SOURCE_INCOMING_CALLS,
+            ConsolidatedDataSchema.SOURCE_OUTGOING_CALLS,
+        ):
+            summary["rows_excluded_non_communication_measure"] = excluded_measure
+        return summary

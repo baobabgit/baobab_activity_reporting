@@ -25,9 +25,9 @@ class TestCsvTicketExtractor:
         assert config.separator == ";"
         assert config.encoding == "utf-8"
         assert config.source_label == "tickets"
-        assert "Numéro" in config.expected_columns
-        assert "Canal" in config.expected_columns
-        assert "Catégorie" in config.expected_columns
+        assert "Numero Ticket" in config.expected_columns
+        assert "Type Canal Ticket" in config.expected_columns
+        assert "Site Repartition Ticket" in config.expected_columns
 
     def test_custom_configuration(self) -> None:
         """Vérifie l'utilisation d'une configuration personnalisée."""
@@ -59,7 +59,7 @@ class TestCsvTicketExtractor:
         """Vérifie les warnings pour colonnes manquantes."""
         csv_file = tmp_path / "partial.csv"
         csv_file.write_text(
-            "Numéro;Date\nT001;2026-01-01\n",
+            "Numero Ticket;Date-Heure Depot Formulaire\nT001;2026-01-01 08:00:00\n",
             encoding="utf-8",
         )
         extractor = CsvTicketExtractor()
