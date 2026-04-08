@@ -39,6 +39,14 @@ class TestGenerateReportUseCase:
                 period_end="2026-03-31",
             )
             kpi_repo.save_kpi(
+                "telephony.outgoing.count",
+                "Sortants",
+                2.0,
+                "appels",
+                period_start="2026-03-01",
+                period_end="2026-03-31",
+            )
+            kpi_repo.save_kpi(
                 "tickets.channel.EFI.count",
                 "EFI",
                 2.0,

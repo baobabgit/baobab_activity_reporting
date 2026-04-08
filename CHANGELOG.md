@@ -14,6 +14,15 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   ``weekly_activity_by_agent`` / ``weekly_activity_by_site`` avec plan en six
   parties.
 - Documentation ``docs/features/11_editorial_report_definitions.md``.
+- Éligibilité de section renforcée : ``SectionEligibilityDetail``,
+  ``SectionAttentionAssessment``, portes données téléphonie / tickets / ventilation,
+  analyse des signaux vigilance, conclusion liée aux sections à contenu exploitable.
+
+### Changed
+
+- Les sections téléphonie, tickets et répartition exigent des volumes ou
+  dimensions fiables ; les points d'attention ne s'affichent qu'en présence de
+  signaux ; la conclusion hebdomadaire est omise sans autre matière exploitable.
 
 ## [1.0.0] - 2026-03-30
 

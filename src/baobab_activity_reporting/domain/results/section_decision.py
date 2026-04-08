@@ -1,6 +1,12 @@
 """Module contenant la décision de section de rapport."""
 
+from __future__ import annotations
+
 from enum import Enum
+
+from baobab_activity_reporting.domain.results.section_eligibility_detail import (
+    SectionEligibilityDetail,
+)
 
 
 class SectionStatus(Enum):
@@ -8,7 +14,7 @@ class SectionStatus(Enum):
 
     :cvar INCLUDED: La section est incluse dans le rapport.
     :cvar EXCLUDED: La section est retirée (données insuffisantes).
-    :cvar DEGRADED: La section est incluse en mode dégradé.
+    :cvar DEGRADED: La section est incluse en mode dégradé ou variante allégée.
     """
 
     INCLUDED = "included"
@@ -26,8 +32,10 @@ class SectionDecision:
     :type section_code: str
     :param status: Statut de la décision.
     :type status: SectionStatus
-    :param reason: Raison de la décision.
+    :param reason: Raison courte de la décision.
     :type reason: str | None
+    :param detail: Motifs structurés et notes de diagnostic.
+    :type detail: SectionEligibilityDetail | None
 
     :Example:
         >>> decision = SectionDecision(
@@ -43,6 +51,8 @@ class SectionDecision:
         section_code: str,
         status: SectionStatus,
         reason: str | None = None,
+        *,
+        detail: SectionEligibilityDetail | None = None,
     ) -> None:
         """Initialise la décision de section.
 
@@ -52,10 +62,13 @@ class SectionDecision:
         :type status: SectionStatus
         :param reason: Raison de la décision.
         :type reason: str | None
+        :param detail: Détail d'éligibilité pour tests et logs.
+        :type detail: SectionEligibilityDetail | None
         """
         self.section_code: str = section_code
         self.status: SectionStatus = status
         self.reason: str | None = reason
+        self.detail: SectionEligibilityDetail | None = detail
 
     @property
     def is_included(self) -> bool:
@@ -79,5 +92,6 @@ class SectionDecision:
             f"SectionDecision("
             f"section_code={self.section_code!r}, "
             f"status={self.status!r}, "
-            f"reason={self.reason!r})"
+            f"reason={self.reason!r}, "
+            f"detail={self.detail!r})"
         )

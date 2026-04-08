@@ -8,6 +8,9 @@ from baobab_activity_reporting.domain.results.section_decision import (
 from baobab_activity_reporting.reporting.editorial.editorial_section_definition import (
     EditorialSectionDefinition,
 )
+from baobab_activity_reporting.reporting.exploitable_section_catalog import (
+    ExploitableSectionCatalog,
+)
 from baobab_activity_reporting.reporting.report_context import ReportContext
 from baobab_activity_reporting.reporting.report_definition import ReportDefinition
 from baobab_activity_reporting.reporting.section_eligibility_evaluator import (
@@ -68,6 +71,8 @@ class ReportPlanner:
         """Produit les sections retenues (avec décision) et toutes les décisions.
 
         Les sections exclues ne figurent pas dans la première liste.
+        La conclusion hebdomadaire est évaluée après les autres sections afin
+        de disposer des pairs exploitables.
 
         :param definition: Définition métier du rapport.
         :type definition: ReportDefinition
@@ -79,13 +84,38 @@ class ReportPlanner:
             list[SectionDecision],
         ]
         """
-        included: list[tuple[EditorialSectionDefinition, SectionDecision]] = []
-        decisions: list[SectionDecision] = []
-        for editorial in definition.editorial_sections:
+        decisions_by_code: dict[str, SectionDecision] = {}
+        non_conclusion: list[EditorialSectionDefinition] = [
+            s for s in definition.editorial_sections if s.section_code != "weekly_conclusion"
+        ]
+        conclusion_sections: list[EditorialSectionDefinition] = [
+            s for s in definition.editorial_sections if s.section_code == "weekly_conclusion"
+        ]
+
+        for editorial in non_conclusion:
             decision = self._evaluator.evaluate_editorial_section(editorial, context)
-            decisions.append(decision)
-            if decision.is_included:
-                included.append((editorial, decision))
+            decisions_by_code[editorial.section_code] = decision
+
+        if conclusion_sections:
+            peer_exploitable = frozenset(
+                code
+                for code, decision in decisions_by_code.items()
+                if decision.is_included and code in ExploitableSectionCatalog.CODES
+            )
+            for editorial in conclusion_sections:
+                decision = self._evaluator.evaluate_editorial_section(
+                    editorial,
+                    context,
+                    peer_exploitable_included=peer_exploitable,
+                )
+                decisions_by_code[editorial.section_code] = decision
+
+        decisions = [decisions_by_code[s.section_code] for s in definition.editorial_sections]
+        included: list[tuple[EditorialSectionDefinition, SectionDecision]] = [
+            (s, decisions_by_code[s.section_code])
+            for s in definition.editorial_sections
+            if decisions_by_code[s.section_code].is_included
+        ]
         logger.info(
             "Plan de rapport %s : %d section(s) incluse(s) sur %d",
             definition.report_type,

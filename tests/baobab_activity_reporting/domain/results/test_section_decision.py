@@ -72,3 +72,4 @@ class TestSectionDecision:
         text = repr(decision)
         assert "SectionDecision(" in text
         assert "section_code='s'" in text
+        assert "detail=None" in text
