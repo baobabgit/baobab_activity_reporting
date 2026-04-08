@@ -55,8 +55,6 @@ class TestImportSourcesUseCase:
             for tel in (schema.SOURCE_INCOMING_CALLS, schema.SOURCE_OUTGOING_CALLS):
                 assert "rows_excluded_non_communication_measure" in by_key[tel]
                 assert by_key[tel]["rows_excluded_non_communication_measure"] == 0
-            assert "rows_excluded_non_communication_measure" not in by_key[
-                schema.SOURCE_TICKETS
-            ]
+            assert "rows_excluded_non_communication_measure" not in by_key[schema.SOURCE_TICKETS]
         finally:
             mgr.close()

@@ -5,6 +5,9 @@ import logging
 from baobab_activity_reporting.domain.results.section_decision import (
     SectionDecision,
 )
+from baobab_activity_reporting.reporting.editorial.editorial_section_definition import (
+    EditorialSectionDefinition,
+)
 from baobab_activity_reporting.reporting.report_context import ReportContext
 from baobab_activity_reporting.reporting.report_definition import ReportDefinition
 from baobab_activity_reporting.reporting.section_eligibility_evaluator import (
@@ -37,7 +40,7 @@ class ReportPlanner:
         >>> p = ReportingPeriod(date(2026, 1, 1), date(2026, 1, 31))
         >>> ctx = ReportContext(p, [{"code": "telephony.incoming.count", "value": 1.0}])
         >>> plan, dec = ReportPlanner().plan(ReportDefinition.activity_telephony(), ctx)
-        >>> any(c == "telephony_overview" for c, _, _ in plan)
+        >>> any(ed.section_code == "telephony_overview" for ed, _ in plan)
         True
     """
 
@@ -59,31 +62,34 @@ class ReportPlanner:
         definition: ReportDefinition,
         context: ReportContext,
     ) -> tuple[
-        list[tuple[str, str, frozenset[str]]],
+        list[tuple[EditorialSectionDefinition, SectionDecision]],
         list[SectionDecision],
     ]:
-        """Produit la liste des sections retenues et toutes les décisions.
+        """Produit les sections retenues (avec décision) et toutes les décisions.
 
-        Les sections exclues ne figurent pas dans le premier tuple.
+        Les sections exclues ne figurent pas dans la première liste.
 
         :param definition: Définition métier du rapport.
         :type definition: ReportDefinition
         :param context: KPI et période disponibles.
         :type context: ReportContext
-        :return: ``(sections_incluses, décisions_pour_toutes_les_sections)``.
-        :rtype: tuple[list[tuple[str, str, frozenset[str]]], list[SectionDecision]]
+        :return: ``(sections_incluses_avec_décision, toutes_les_décisions)``.
+        :rtype: tuple[
+            list[tuple[EditorialSectionDefinition, SectionDecision]],
+            list[SectionDecision],
+        ]
         """
-        included: list[tuple[str, str, frozenset[str]]] = []
+        included: list[tuple[EditorialSectionDefinition, SectionDecision]] = []
         decisions: list[SectionDecision] = []
-        for section_code, title, prefixes in definition.sections:
-            decision = self._evaluator.evaluate(section_code, prefixes, context)
+        for editorial in definition.editorial_sections:
+            decision = self._evaluator.evaluate_editorial_section(editorial, context)
             decisions.append(decision)
             if decision.is_included:
-                included.append((section_code, title, prefixes))
+                included.append((editorial, decision))
         logger.info(
             "Plan de rapport %s : %d section(s) incluse(s) sur %d",
             definition.report_type,
             len(included),
-            len(definition.sections),
+            len(definition.editorial_sections),
         )
         return included, decisions
