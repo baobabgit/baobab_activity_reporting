@@ -13,8 +13,42 @@ from baobab_activity_reporting.reporting.editorial.editorial_section_definition 
 from baobab_activity_reporting.reporting.editorial.section_visibility_rule import (
     SectionVisibilityRule,
 )
+from baobab_activity_reporting.reporting.editorial.table_layout_kind import (
+    TableLayoutKind,
+)
 from baobab_activity_reporting.reporting.editorial.table_policy import TablePolicy
 from baobab_activity_reporting.reporting.editorial.writing_style import WritingStyle
+
+
+def _legacy_table_policy(section_code: str) -> TablePolicy:
+    """Politique de tableau alignée sur le type de section legacy.
+
+    :param section_code: Identifiant de section.
+    :type section_code: str
+    :return: Politique pour présentation métier courte.
+    :rtype: TablePolicy
+    """
+    if section_code == "ticket_channels":
+        return TablePolicy(
+            max_rows=8,
+            layout_kind=TableLayoutKind.CHANNEL_DISTRIBUTION,
+        )
+    if section_code == "agent_breakdown":
+        return TablePolicy(
+            max_rows=8,
+            layout_kind=TableLayoutKind.AGENT_VENTILATION,
+        )
+    if section_code == "site_breakdown":
+        return TablePolicy(
+            max_rows=8,
+            layout_kind=TableLayoutKind.SITE_VENTILATION,
+        )
+    if section_code == "telephony_overview":
+        return TablePolicy.default()
+    return TablePolicy(
+        max_rows=8,
+        layout_kind=TableLayoutKind.COMPACT_METRICS,
+    )
 
 
 def _editorial_from_legacy(
@@ -45,7 +79,7 @@ def _editorial_from_legacy(
             kpi_prefixes,
             mandatory_in_report=False,
         ),
-        table_policy=TablePolicy.default(),
+        table_policy=_legacy_table_policy(section_code),
     )
 
 

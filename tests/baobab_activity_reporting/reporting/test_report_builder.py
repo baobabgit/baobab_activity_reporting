@@ -83,3 +83,30 @@ class TestReportBuilder:
         ctx = ReportContext(p, [])
         with pytest.raises(ReportGenerationError):
             ReportBuilder().build(ReportDefinition.activity_telephony(), ctx)
+
+    def test_presentation_alerts_appended_to_insights(self) -> None:
+        """Alertes de qualité données propagées dans les points saillants."""
+        p = ReportingPeriod(date(2026, 3, 1), date(2026, 3, 31))
+        ctx = ReportContext(
+            p,
+            [
+                {
+                    "code": "agent.Marie.telephony.incoming.count",
+                    "label": "Entrants",
+                    "value": 2.0,
+                    "unit": "appels",
+                    "agent": None,
+                },
+                {
+                    "code": "agent.Jean.telephony.incoming.count",
+                    "label": "Entrants",
+                    "value": 1.0,
+                    "unit": "appels",
+                    "agent": "Jean",
+                },
+            ],
+        )
+        model = ReportBuilder().build(ReportDefinition.activity_by_agent(), ctx)
+        sec = model.sections[0]
+        insights = sec.get("insights", [])
+        assert any("[Données]" in str(i) for i in insights)

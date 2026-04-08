@@ -1,5 +1,31 @@
 # Journal de développement — baobab-activity-reporting
 
+## 2026-04-07 20:00:00
+
+### Modifications
+
+- Package ``reporting/presentation/`` : ``DurationFormatter``, ``VolumeFormatter``,
+  ``PercentageFormatter``, ``BusinessNumericRounding``, ``TechnicalLabelSanitizer``,
+  ``DimensionAnomalyChecker``, ``KpiValuePresentationFormatter``,
+  ``SectionKpiTableProjector``.
+- ``TableLayoutKind``, ``TablePolicy`` enrichie (``layout_kind``, ``max_rows`` par
+  défaut) ; ``TableBuilder`` / ``ReportBuilder`` branchés sur la projection et le
+  formatage métier ; définitions hebdo agent/site avec politiques par section.
+- Tests unitaires miroir sous ``tests/.../presentation/`` ; scénarios
+  ``test_report_builder`` / ``test_table_builder`` (alertes ``[Données]``,
+  ventilation site).
+
+### Buts
+
+- Rendre les rapports lisibles : durées humaines, pas de codes KPI en tableau,
+  tableaux courts et omis s’ils n’apportent pas de lecture ; signaler les
+  dimensions manquantes ou placeholders.
+
+### Impact
+
+- Writers inchangés sur le principe : la couche présentation prépare déjà textes
+  et lignes de tableau métier.
+
 ## 2026-04-08 01:00:00
 
 ### Modifications

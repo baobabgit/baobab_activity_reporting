@@ -9,6 +9,12 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- Couche ``reporting/presentation/`` : formatage métier des durées, volumes,
+  pourcentages, arrondis, libellés, anomalies de dimensions ; projection des KPI
+  en tableaux courts selon ``TableLayoutKind`` ; alertes de présentation
+  propagées dans les points saillants (préfixe ``[Données]``).
+- Énumération ``TableLayoutKind`` et politiques de tableau par section pour les
+  rapports hebdo agent / site.
 - Modèle éditorial de section (objectif, données requises / optionnelles, règles
   d’affichage, style, visibilité KPI, politique de tableaux) et rapports
   ``weekly_activity_by_agent`` / ``weekly_activity_by_site`` avec plan en six
@@ -20,9 +26,17 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- ``TableBuilder`` : tableaux limités, en-têtes et cellules métier, sans colonne
+  code KPI ; omission du tableau lorsque la projection ne produit aucune ligne
+  exploitable.
 - Les sections téléphonie, tickets et répartition exigent des volumes ou
   dimensions fiables ; les points d'attention ne s'affichent qu'en présence de
   signaux ; la conclusion hebdomadaire est omise sans autre matière exploitable.
+
+### Fixed
+
+- Test ``test_version_matches_pyproject`` : version attendue lue depuis
+  ``pyproject.toml`` pour éviter la dérive avec une installation locale obsolète.
 
 ## [1.0.0] - 2026-03-30
 

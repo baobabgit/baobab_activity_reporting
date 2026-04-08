@@ -131,25 +131,33 @@ class ReportBuilder:
                     dec.status,
                 ),
             ]
+            insight_list = self._insights_for_section(section_code, kpis, context)
+            tables_out: list[dict[str, object]] = []
             if editorial.display_rules.show_metric_tables:
-                table = self._tables.from_kpi_rows(
+                raw_table = self._tables.from_kpi_rows(
                     section_title,
                     kpis,
+                    section_code=section_code,
                     context=context,
                     table_policy=editorial.table_policy,
                 )
-            else:
-                table = {
-                    "caption": section_title,
-                    "headers": [],
-                    "rows": [],
-                }
-            insight_list = self._insights_for_section(section_code, kpis, context)
+                pres_alerts = raw_table.get("presentation_alerts")
+                if isinstance(pres_alerts, list) and pres_alerts:
+                    insight_list = insight_list + [
+                        f"[Données] {item}" for item in pres_alerts if str(item).strip()
+                    ]
+                if not raw_table.get("skipped"):
+                    clean_table = {
+                        k: v
+                        for k, v in raw_table.items()
+                        if k not in ("skipped", "presentation_alerts")
+                    }
+                    tables_out.append(clean_table)
             section_payload: dict[str, object] = {
                 "section_code": section_code,
                 "title": section_title,
                 "narrative_blocks": narratives,
-                "tables": [table],
+                "tables": tables_out,
                 "insights": insight_list,
                 "eligibility_status": dec.status.value,
                 "eligibility_reason": dec.reason,

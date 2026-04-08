@@ -9,6 +9,9 @@ from baobab_activity_reporting.reporting.editorial.editorial_section_definition 
 from baobab_activity_reporting.reporting.editorial.section_visibility_rule import (
     SectionVisibilityRule,
 )
+from baobab_activity_reporting.reporting.editorial.table_layout_kind import (
+    TableLayoutKind,
+)
 from baobab_activity_reporting.reporting.editorial.table_policy import TablePolicy
 from baobab_activity_reporting.reporting.editorial.writing_style import WritingStyle
 from baobab_activity_reporting.reporting.report_definition import ReportDefinition
@@ -30,11 +33,30 @@ class WeeklyActivityByAgentReportDefinition:
         """
         dr = DisplayRules.default()
         ws = WritingStyle.default()
-        tp_std = TablePolicy.default()
-        tp_sorted = TablePolicy(
-            max_rows=None,
+        tp_synthesis = TablePolicy.default()
+        tp_telephony = TablePolicy(
+            max_rows=6,
             sort_by_numeric_value_desc=True,
-            include_site_agent_channel_columns=True,
+            include_site_agent_channel_columns=False,
+            layout_kind=TableLayoutKind.KEY_FIGURES,
+        )
+        tp_tickets = TablePolicy(
+            max_rows=8,
+            sort_by_numeric_value_desc=True,
+            include_site_agent_channel_columns=False,
+            layout_kind=TableLayoutKind.CHANNEL_DISTRIBUTION,
+        )
+        tp_agent = TablePolicy(
+            max_rows=8,
+            sort_by_numeric_value_desc=True,
+            include_site_agent_channel_columns=False,
+            layout_kind=TableLayoutKind.AGENT_VENTILATION,
+        )
+        tp_attention = TablePolicy(
+            max_rows=5,
+            sort_by_numeric_value_desc=True,
+            include_site_agent_channel_columns=False,
+            layout_kind=TableLayoutKind.COMPACT_METRICS,
         )
         sections: tuple[EditorialSectionDefinition, ...] = (
             EditorialSectionDefinition(
@@ -54,7 +76,7 @@ class WeeklyActivityByAgentReportDefinition:
                     frozenset(),
                     mandatory_in_report=True,
                 ),
-                table_policy=tp_std,
+                table_policy=tp_synthesis,
             ),
             EditorialSectionDefinition(
                 section_code="weekly_telephony",
@@ -70,7 +92,7 @@ class WeeklyActivityByAgentReportDefinition:
                     frozenset({"telephony."}),
                     mandatory_in_report=False,
                 ),
-                table_policy=tp_sorted,
+                table_policy=tp_telephony,
             ),
             EditorialSectionDefinition(
                 section_code="weekly_ticket_processing",
@@ -87,7 +109,7 @@ class WeeklyActivityByAgentReportDefinition:
                     frozenset({"tickets."}),
                     mandatory_in_report=False,
                 ),
-                table_policy=tp_sorted,
+                table_policy=tp_tickets,
             ),
             EditorialSectionDefinition(
                 section_code="weekly_agent_contribution",
@@ -104,7 +126,7 @@ class WeeklyActivityByAgentReportDefinition:
                     frozenset({"agent."}),
                     mandatory_in_report=False,
                 ),
-                table_policy=tp_sorted,
+                table_policy=tp_agent,
             ),
             EditorialSectionDefinition(
                 section_code="weekly_attention_points",
@@ -129,7 +151,7 @@ class WeeklyActivityByAgentReportDefinition:
                     frozenset({"telephony.", "tickets."}),
                     mandatory_in_report=False,
                 ),
-                table_policy=tp_std,
+                table_policy=tp_attention,
             ),
             EditorialSectionDefinition(
                 section_code="weekly_conclusion",
@@ -150,7 +172,7 @@ class WeeklyActivityByAgentReportDefinition:
                     frozenset(),
                     mandatory_in_report=True,
                 ),
-                table_policy=tp_std,
+                table_policy=tp_synthesis,
             ),
         )
         return ReportDefinition(

@@ -1,8 +1,10 @@
 """Tests unitaires pour PackageMetadata."""
 
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+import tomllib
 
 from baobab_activity_reporting.core.package_metadata import PackageMetadata
 from baobab_activity_reporting.exceptions.configuration_exception import (
@@ -57,6 +59,9 @@ class TestPackageMetadata:
                 PackageMetadata()
 
     def test_version_matches_pyproject(self) -> None:
-        """Vérifie que la version correspond à celle du pyproject."""
+        """Vérifie que la version installée correspond à celle du pyproject."""
+        pyproject = Path(__file__).resolve().parents[3] / "pyproject.toml"
+        with pyproject.open("rb") as handle:
+            expected = tomllib.load(handle)["project"]["version"]
         meta = PackageMetadata()
-        assert meta.package_version == "1.0.0"
+        assert meta.package_version == expected
