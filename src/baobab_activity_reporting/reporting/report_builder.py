@@ -2,8 +2,12 @@
 
 import logging
 
+from baobab_activity_reporting.domain.results.section_decision import SectionStatus
 from baobab_activity_reporting.exceptions.report_generation_error import (
     ReportGenerationError,
+)
+from baobab_activity_reporting.reporting.editorial.editorial_section_definition import (
+    EditorialSectionDefinition,
 )
 from baobab_activity_reporting.reporting.insight_builder import InsightBuilder
 from baobab_activity_reporting.reporting.narrative_builder import NarrativeBuilder
@@ -14,6 +18,9 @@ from baobab_activity_reporting.reporting.report_planner import ReportPlanner
 from baobab_activity_reporting.reporting.table_builder import TableBuilder
 
 logger = logging.getLogger(__name__)
+
+_INSIGHT_TELEPHONY_CODES = frozenset({"telephony_overview", "weekly_telephony"})
+_INSIGHT_CHANNEL_CODES = frozenset({"ticket_channels", "weekly_ticket_processing"})
 
 
 class ReportBuilder:
@@ -109,18 +116,32 @@ class ReportBuilder:
         preamble = [self._narrative.lead_paragraph(context, title)]
         decision_by_code = {d.section_code: d for d in decisions}
         built_sections: list[dict[str, object]] = []
-        for section_code, section_title, prefixes in included:
-            kpis = context.kpis_matching_prefixes(prefixes)
-            narratives = [
-                self._narrative.section_intro(section_code, section_title, len(kpis)),
-            ]
-            table = self._tables.from_kpi_rows(
-                section_title,
-                kpis,
-                context=context,
-            )
-            insight_list = self._insights_for_section(section_code, kpis, context)
+        for editorial, _ in included:
+            section_code = editorial.section_code
+            section_title = editorial.section_title
             dec = decision_by_code[section_code]
+            kpis = self._kpis_for_editorial(editorial, context, dec.status)
+            narratives = [
+                self._narrative.editorial_section_intro(
+                    editorial,
+                    len(kpis),
+                    dec.status,
+                ),
+            ]
+            if editorial.display_rules.show_metric_tables:
+                table = self._tables.from_kpi_rows(
+                    section_title,
+                    kpis,
+                    context=context,
+                    table_policy=editorial.table_policy,
+                )
+            else:
+                table = {
+                    "caption": section_title,
+                    "headers": [],
+                    "rows": [],
+                }
+            insight_list = self._insights_for_section(section_code, kpis, context)
             built_sections.append(
                 {
                     "section_code": section_code,
@@ -146,6 +167,32 @@ class ReportBuilder:
             sections=built_sections,
         )
 
+    @staticmethod
+    def _kpis_for_editorial(
+        editorial: EditorialSectionDefinition,
+        context: ReportContext,
+        status: SectionStatus,
+    ) -> list[dict[str, object]]:
+        """Sélectionne les enregistrements KPI affichés pour une section.
+
+        :param editorial: Section éditoriale courante.
+        :type editorial: EditorialSectionDefinition
+        :param context: Contexte KPI.
+        :type context: ReportContext
+        :param status: Statut de planification (dégradé => liste vide).
+        :type status: SectionStatus
+        :return: Lignes KPI pour tableaux et insights.
+        :rtype: list[dict[str, object]]
+        """
+        if status == SectionStatus.DEGRADED:
+            return []
+        if editorial.section_code == "weekly_conclusion":
+            return []
+        prefixes = editorial.visibility_rule.kpi_prefixes
+        if not prefixes:
+            return context.kpis_matching_prefixes(frozenset())
+        return context.kpis_matching_prefixes(prefixes)
+
     def _insights_for_section(
         self,
         section_code: str,
@@ -163,12 +210,12 @@ class ReportBuilder:
         :return: Liste d'insights.
         :rtype: list[str]
         """
-        if section_code == "telephony_overview":
+        if section_code in _INSIGHT_TELEPHONY_CODES:
             return self._insights.telephony_balance_insights(
                 kpis,
                 context=context,
             )
-        if section_code == "ticket_channels":
+        if section_code in _INSIGHT_CHANNEL_CODES:
             return self._insights.channel_mix_insights(
                 kpis,
                 context=context,

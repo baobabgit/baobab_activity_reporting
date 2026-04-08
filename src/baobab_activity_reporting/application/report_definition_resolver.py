@@ -20,6 +20,8 @@ def resolve_report_definition(report_type: str) -> ReportDefinition:
         "activity_telephony": ReportDefinition.activity_telephony(),
         "activity_by_site": ReportDefinition.activity_by_site(),
         "activity_by_agent": ReportDefinition.activity_by_agent(),
+        "weekly_activity_by_agent": ReportDefinition.weekly_activity_by_agent(),
+        "weekly_activity_by_site": ReportDefinition.weekly_activity_by_site(),
     }
     if key not in registry:
         raise ConfigurationException(

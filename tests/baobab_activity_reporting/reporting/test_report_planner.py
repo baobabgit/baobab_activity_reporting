@@ -24,7 +24,7 @@ class TestReportPlanner:
             ReportDefinition.activity_telephony(),
             ctx,
         )
-        codes = [c for c, _, _ in included]
+        codes = [ed.section_code for ed, _ in included]
         assert codes == ["telephony_overview"]
         assert len(decisions) == 2
 

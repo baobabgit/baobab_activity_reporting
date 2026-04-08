@@ -1,5 +1,9 @@
 """Module de construction des blocs narratifs."""
 
+from baobab_activity_reporting.domain.results.section_decision import SectionStatus
+from baobab_activity_reporting.reporting.editorial.editorial_section_definition import (
+    EditorialSectionDefinition,
+)
 from baobab_activity_reporting.reporting.report_context import ReportContext
 
 
@@ -73,6 +77,39 @@ class NarrativeBuilder:
             f"La section « {section_title} » présente {kpi_count} indicateurs "
             "pour cette période."
         )
+
+    def editorial_section_intro(
+        self,
+        editorial: EditorialSectionDefinition,
+        kpi_count: int,
+        status: SectionStatus,
+    ) -> str:
+        """Introduit une section à partir du plan éditorial et du statut.
+
+        :param editorial: Définition éditoriale de la section.
+        :type editorial: EditorialSectionDefinition
+        :param kpi_count: Nombre d'indicateurs liés à la section.
+        :type kpi_count: int
+        :param status: Statut d'éligibilité (inclus ou dégradé).
+        :type status: SectionStatus
+        :return: Paragraphe combinant objectif et synthèse des données.
+        :rtype: str
+        """
+        objective = editorial.section_objective.strip()
+        title = editorial.section_title
+        style = editorial.writing_style
+        style_hint = (
+            f" (style attendu : {style.tone}, {style.length_hint})" if style.length_hint else ""
+        )
+        obj_sentence = f"Objectif : {objective} " if objective else f"Section « {title} ». "
+        if status == SectionStatus.DEGRADED:
+            return (
+                f"{obj_sentence}Les données disponibles ne permettent pas de "
+                f"remplir les indicateurs attendus pour « {title} » ; la section "
+                f"est maintenue à titre informatif{style_hint}."
+            )
+        volume = self.section_intro(editorial.section_code, title, kpi_count)
+        return f"{obj_sentence}{volume}"
 
     @staticmethod
     def _kpi_count_sentence(context: ReportContext) -> str:

@@ -6,6 +6,9 @@ from baobab_activity_reporting.domain.results.section_decision import (
     SectionDecision,
     SectionStatus,
 )
+from baobab_activity_reporting.reporting.editorial.editorial_section_definition import (
+    EditorialSectionDefinition,
+)
 from baobab_activity_reporting.reporting.report_context import ReportContext
 
 logger = logging.getLogger(__name__)
@@ -81,6 +84,68 @@ class SectionEligibilityEvaluator:
             section_code,
         )
         prefix_list = ", ".join(sorted(required_kpi_prefixes))
+        return SectionDecision(
+            section_code,
+            SectionStatus.EXCLUDED,
+            reason=f"aucun KPI pour les préfixes requis: {prefix_list}",
+        )
+
+    def evaluate_editorial_section(
+        self,
+        section: EditorialSectionDefinition,
+        context: ReportContext,
+    ) -> SectionDecision:
+        """Évalue une section à partir de sa définition éditoriale.
+
+        Applique la porte sur préfixes KPI et le caractère obligatoire
+        (section dégradée si données manquantes mais obligatoire).
+
+        :param section: Définition éditoriale complète.
+        :type section: EditorialSectionDefinition
+        :param context: Contexte KPI.
+        :type context: ReportContext
+        :return: Décision d'inclusion, exclusion ou mode dégradé.
+        :rtype: SectionDecision
+        """
+        rule = section.visibility_rule
+        prefixes = rule.kpi_prefixes
+        section_code = section.section_code
+        if not prefixes:
+            logger.info(
+                "Section %s : aucun prérequis KPI, inclusion systématique",
+                section_code,
+            )
+            return SectionDecision(
+                section_code,
+                SectionStatus.INCLUDED,
+                reason="aucun prérequis KPI",
+            )
+
+        codes = context.kpi_codes()
+        matched = any(any(code.startswith(prefix) for prefix in prefixes) for code in codes)
+        if matched:
+            logger.info("Section %s : incluse (au moins un KPI correspond)", section_code)
+            return SectionDecision(
+                section_code,
+                SectionStatus.INCLUDED,
+            )
+
+        if rule.mandatory_in_report:
+            logger.info(
+                "Section %s : incluse en mode dégradé (obligatoire, KPI absents)",
+                section_code,
+            )
+            return SectionDecision(
+                section_code,
+                SectionStatus.DEGRADED,
+                reason="données KPI absentes pour une section obligatoire",
+            )
+
+        logger.info(
+            "Section %s : exclue (préfixes requis non satisfaits)",
+            section_code,
+        )
+        prefix_list = ", ".join(sorted(prefixes))
         return SectionDecision(
             section_code,
             SectionStatus.EXCLUDED,

@@ -5,6 +5,16 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Modèle éditorial de section (objectif, données requises / optionnelles, règles
+  d’affichage, style, visibilité KPI, politique de tableaux) et rapports
+  ``weekly_activity_by_agent`` / ``weekly_activity_by_site`` avec plan en six
+  parties.
+- Documentation ``docs/features/11_editorial_report_definitions.md``.
+
 ## [1.0.0] - 2026-03-30
 
 ### Changed

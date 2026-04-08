@@ -18,6 +18,16 @@ class TestReportDefinitionResolver:
         d = resolve_report_definition("activity_telephony")
         assert d.report_type == "activity_telephony"
 
+    def test_weekly_activity_by_agent(self) -> None:
+        """Résout le rapport hebdomadaire agent."""
+        d = resolve_report_definition("weekly_activity_by_agent")
+        assert d.report_type == "weekly_activity_by_agent"
+
+    def test_weekly_activity_by_site(self) -> None:
+        """Résout le rapport hebdomadaire site."""
+        d = resolve_report_definition("weekly_activity_by_site")
+        assert d.report_type == "weekly_activity_by_site"
+
     def test_unknown_raises(self) -> None:
         """Valeur inconnue : ConfigurationException."""
         with pytest.raises(ConfigurationException, match="inconnu"):

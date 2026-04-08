@@ -1,5 +1,33 @@
 # Journal de développement — baobab-activity-reporting
 
+## 2026-04-07 23:30:00
+
+### Modifications
+
+- Package ``reporting/editorial/`` : ``DisplayRules``, ``TablePolicy``, ``WritingStyle``,
+  ``SectionVisibilityRule``, ``EditorialSectionDefinition`` (validation via
+  ``ReportGenerationError``).
+- ``ReportDefinition`` : ``editorial_sections``, propriété legacy ``sections``,
+  adaptation ``_editorial_from_legacy``, fabriques ``weekly_activity_by_agent`` /
+  ``weekly_activity_by_site`` (chargement dynamique pour éviter les cycles).
+- Rapports hebdo agent / site : plan en six sections (synthèse, téléphonie,
+  traitement, contribution ou charge, points d’attention, conclusion).
+- ``SectionEligibilityEvaluator.evaluate_editorial_section`` ; ``ReportPlanner`` et
+  ``ReportBuilder`` branchés sur le modèle éditorial ; ``NarrativeBuilder`` et
+  ``TableBuilder`` enrichis (objectif, ``table_policy``).
+- Résolution CLI / ``resolve_report_definition`` pour les nouveaux types.
+- Tests unitaires miroir et note ``docs/features/11_editorial_report_definitions.md``.
+
+### Buts
+
+- Ne plus se limiter à un export d’indicateurs : porter un plan éditorial
+  normalisé et des métadonnées rédactionnelles exploitables par le pipeline.
+
+### Impact
+
+- Compatibilité conservée pour les définitions existantes via la vue legacy et
+  les valeurs par défaut des champs éditoriaux.
+
 ## 2026-03-30 22:00:00
 
 ### Modifications

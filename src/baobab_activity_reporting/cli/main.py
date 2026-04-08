@@ -81,6 +81,8 @@ def main(argv: list[str] | None = None) -> int:
             "activity_telephony",
             "activity_by_site",
             "activity_by_agent",
+            "weekly_activity_by_agent",
+            "weekly_activity_by_site",
         ],
         help="Identifiant du gabarit de rapport.",
     )
