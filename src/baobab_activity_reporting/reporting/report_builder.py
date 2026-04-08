@@ -19,9 +19,6 @@ from baobab_activity_reporting.reporting.table_builder import TableBuilder
 
 logger = logging.getLogger(__name__)
 
-_INSIGHT_TELEPHONY_CODES = frozenset({"telephony_overview", "weekly_telephony"})
-_INSIGHT_CHANNEL_CODES = frozenset({"ticket_channels", "weekly_ticket_processing"})
-
 
 class ReportBuilder:
     """Assemble plan, narratifs, tableaux et insights en :class:`ReportModel`.
@@ -116,7 +113,9 @@ class ReportBuilder:
             period_start=period_start,
             period_end=period_end,
         )
-        preamble = [self._narrative.lead_paragraph(context, title)]
+        preamble = [
+            self._narrative.lead_paragraph(context, title, definition.report_type),
+        ]
         decision_by_code = {d.section_code: d for d in decisions}
         built_sections: list[dict[str, object]] = []
         for editorial, _ in included:
@@ -124,14 +123,22 @@ class ReportBuilder:
             section_title = editorial.section_title
             dec = decision_by_code[section_code]
             kpis = self._kpis_for_editorial(editorial, context, dec.status)
-            narratives = [
-                self._narrative.editorial_section_intro(
-                    editorial,
-                    len(kpis),
-                    dec.status,
-                ),
-            ]
-            insight_list = self._insights_for_section(section_code, kpis, context)
+            narratives = self._narrative.section_narrative_blocks(
+                editorial,
+                kpis,
+                dec.status,
+                definition.report_type,
+                context,
+                eligibility_detail=dec.detail,
+            )
+            insight_list = self._insights.insights_for_section(
+                editorial,
+                kpis,
+                dec.status,
+                definition.report_type,
+                context,
+                eligibility_detail=dec.detail,
+            )
             tables_out: list[dict[str, object]] = []
             if editorial.display_rules.show_metric_tables:
                 raw_table = self._tables.from_kpi_rows(
@@ -205,35 +212,3 @@ class ReportBuilder:
         if not prefixes:
             return context.kpis_matching_prefixes(frozenset())
         return context.kpis_matching_prefixes(prefixes)
-
-    def _insights_for_section(
-        self,
-        section_code: str,
-        kpis: list[dict[str, object]],
-        context: ReportContext,
-    ) -> list[str]:
-        """Sélectionne la stratégie d'insights selon la section.
-
-        :param section_code: Code de section.
-        :type section_code: str
-        :param kpis: KPI filtrés.
-        :type kpis: list[dict[str, object]]
-        :param context: Contexte courant.
-        :type context: ReportContext
-        :return: Liste d'insights.
-        :rtype: list[str]
-        """
-        if section_code in _INSIGHT_TELEPHONY_CODES:
-            return self._insights.telephony_balance_insights(
-                kpis,
-                context=context,
-            )
-        if section_code in _INSIGHT_CHANNEL_CODES:
-            return self._insights.channel_mix_insights(
-                kpis,
-                context=context,
-            )
-        return self._insights.generic_numeric_highlights(
-            kpis,
-            context=context,
-        )

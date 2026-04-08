@@ -1,138 +1,122 @@
-"""Module de construction d'insights métier courts."""
+"""Orchestration des insights éditoriaux par section (hors rendu documentaire)."""
 
+from __future__ import annotations
+
+from baobab_activity_reporting.domain.results.section_decision import SectionStatus
+from baobab_activity_reporting.domain.results.section_eligibility_detail import (
+    SectionEligibilityDetail,
+)
+from baobab_activity_reporting.reporting.agent_contribution_insight_writer import (
+    AgentContributionInsightWriter,
+)
+from baobab_activity_reporting.reporting.attention_points_insight_writer import (
+    AttentionPointsInsightWriter,
+)
+from baobab_activity_reporting.reporting.conclusion_insight_writer import (
+    ConclusionInsightWriter,
+)
+from baobab_activity_reporting.reporting.dimensional_breakdown_insight_writer import (
+    DimensionalBreakdownInsightWriter,
+)
+from baobab_activity_reporting.reporting.editorial.editorial_section_definition import (
+    EditorialSectionDefinition,
+)
+from baobab_activity_reporting.reporting.fallback_section_insight_writer import (
+    FallbackSectionInsightWriter,
+)
 from baobab_activity_reporting.reporting.report_context import ReportContext
+from baobab_activity_reporting.reporting.section_editorial_context import (
+    SectionEditorialContext,
+)
+from baobab_activity_reporting.reporting.site_workload_insight_writer import (
+    SiteWorkloadInsightWriter,
+)
+from baobab_activity_reporting.reporting.telephony_activity_insight_writer import (
+    TelephonyActivityInsightWriter,
+)
+from baobab_activity_reporting.reporting.telephony_overview_insight_writer import (
+    TelephonyOverviewInsightWriter,
+)
+from baobab_activity_reporting.reporting.ticket_channels_insight_writer import (
+    TicketChannelsInsightWriter,
+)
+from baobab_activity_reporting.reporting.ticket_processing_insight_writer import (
+    TicketProcessingInsightWriter,
+)
+from baobab_activity_reporting.reporting.weekly_synthesis_insight_writer import (
+    WeeklySynthesisInsightWriter,
+)
 
 
 class InsightBuilder:
-    """Déduit quelques phrases d'analyse à partir des valeurs numériques.
+    """Sélectionne un rédacteur d'insights selon le code de section.
 
-    Les règles sont volontairement simples et explicables ; elles ne se
-    substituent pas à une couche d'analyse avancée.
-
-    :Example:
-        >>> from baobab_activity_reporting.reporting.insight_builder import (
-        ...     InsightBuilder,
-        ... )
-        >>> kpis = [
-        ...     {"code": "telephony.incoming.count", "value": 10.0},
-        ...     {"code": "telephony.outgoing.count", "value": 5.0},
-        ... ]
-        >>> outs = InsightBuilder().telephony_balance_insights(kpis)
-        >>> len(outs) >= 1
-        True
+    Les formulations visent des constats analytiques, pas une relecture ligne
+    à ligne des tableaux ni l'exposition de codes KPI.
     """
 
-    def telephony_balance_insights(
+    def __init__(
         self,
-        kpi_rows: list[dict[str, object]],
         *,
-        context: ReportContext | None = None,
-    ) -> list[str]:
-        """Compare volumes entrants et sortants lorsque les KPI sont présents.
+        section_writers: dict[str, object] | None = None,
+        fallback_writer: FallbackSectionInsightWriter | None = None,
+    ) -> None:
+        """Initialise le registre des rédacteurs d'insights.
 
-        :param kpi_rows: Sous-ensemble de KPI téléphonie.
-        :type kpi_rows: list[dict[str, object]]
-        :param context: Contexte optionnel pour extensions.
-        :type context: ReportContext | None
-        :return: Liste d'insights (peut être vide).
-        :rtype: list[str]
+        :param section_writers: Map ``section_code`` → rédacteur avec ``write(ctx)``.
+        :param fallback_writer: Rédacteur par défaut (liste vide par défaut).
         """
-        _ = context
-        incoming = self._find_value(kpi_rows, "telephony.incoming.count")
-        outgoing = self._find_value(kpi_rows, "telephony.outgoing.count")
-        if incoming is None and outgoing is None:
-            return []
-        insights: list[str] = []
-        if incoming is not None and outgoing is not None:
-            total = incoming + outgoing
-            if total > 0:
-                in_pct = 100.0 * incoming / total
-                insights.append(
-                    f"Les appels entrants représentent environ {in_pct:.1f} % "
-                    f"du volume téléphonique ({int(incoming)} entrants, "
-                    f"{int(outgoing)} sortants)."
-                )
-        if incoming is not None:
-            insights.append(f"Volume total des appels entrants : {int(incoming)}.")
-        if outgoing is not None:
-            insights.append(f"Volume total des appels sortants : {int(outgoing)}.")
-        return insights
+        self._fallback: FallbackSectionInsightWriter = (
+            fallback_writer if fallback_writer is not None else FallbackSectionInsightWriter()
+        )
+        default_writers: dict[str, object] = {
+            "weekly_synthesis": WeeklySynthesisInsightWriter(),
+            "weekly_telephony": TelephonyActivityInsightWriter(),
+            "weekly_ticket_processing": TicketProcessingInsightWriter(),
+            "weekly_agent_contribution": AgentContributionInsightWriter(),
+            "weekly_site_workload": SiteWorkloadInsightWriter(),
+            "weekly_attention_points": AttentionPointsInsightWriter(),
+            "weekly_conclusion": ConclusionInsightWriter(),
+            "telephony_overview": TelephonyOverviewInsightWriter(),
+            "ticket_channels": TicketChannelsInsightWriter(),
+            "agent_breakdown": DimensionalBreakdownInsightWriter(),
+            "site_breakdown": DimensionalBreakdownInsightWriter(),
+        }
+        self._writers: dict[str, object] = (
+            dict(section_writers) if section_writers is not None else default_writers
+        )
 
-    def channel_mix_insights(
+    def insights_for_section(
         self,
+        editorial: EditorialSectionDefinition,
         kpi_rows: list[dict[str, object]],
+        status: SectionStatus,
+        report_type: str,
+        context: ReportContext,
         *,
-        context: ReportContext | None = None,
+        eligibility_detail: SectionEligibilityDetail | None = None,
     ) -> list[str]:
-        """Résume la répartition des volumes par canal ticKet.
+        """Produit les insights pour une section donnée.
 
-        :param kpi_rows: KPI dont le code commence par ``tickets.channel.``.
-        :type kpi_rows: list[dict[str, object]]
-        :param context: Contexte optionnel.
-        :type context: ReportContext | None
-        :return: Insights sur les canaux.
-        :rtype: list[str]
+        :param editorial: Définition éditoriale (code, titre, objectif).
+        :param kpi_rows: KPI filtrés pour la section.
+        :param status: Statut d'éligibilité de la section.
+        :param report_type: Type logique du rapport.
+        :param context: Contexte rapport complet.
+        :param eligibility_detail: Détail d'éligibilité (points d'attention).
+        :return: Liste de phrases courtes.
         """
-        _ = context
-        pairs: list[tuple[str, float]] = []
-        for row in kpi_rows:
-            code = str(row.get("code", "")).removeprefix("tickets.channel.").removesuffix(".count")
-            if not code:
-                code = str(row.get("code", ""))
-            val = row.get("value")
-            if isinstance(val, (int, float)) and not isinstance(val, bool):
-                pairs.append((code, float(val)))
-        if not pairs:
-            return []
-        total = sum(v for _, v in pairs)
-        if total <= 0:
-            return ["Aucun volume ticket sur les canaux pour cette période."]
-        insights: list[str] = []
-        for name, val in sorted(pairs, key=lambda x: -x[1]):
-            pct = 100.0 * val / total
-            insights.append(f"Canal {name} : {pct:.1f} % du volume ({int(val)}).")
-        return insights
-
-    def generic_numeric_highlights(
-        self,
-        kpi_rows: list[dict[str, object]],
-        *,
-        context: ReportContext | None = None,
-    ) -> list[str]:
-        """Liste les indicateurs avec valeur numérique sous forme courte.
-
-        :param kpi_rows: Enregistrements KPI de la section.
-        :type kpi_rows: list[dict[str, object]]
-        :param context: Contexte optionnel.
-        :type context: ReportContext | None
-        :return: Bullets de synthèse.
-        :rtype: list[str]
-        """
-        _ = context
-        lines: list[str] = []
-        for row in sorted(kpi_rows, key=lambda r: str(r.get("code", ""))):
-            label = str(row.get("label", row.get("code", "")))
-            val = row.get("value")
-            unit = row.get("unit")
-            if isinstance(val, (int, float)) and not isinstance(val, bool):
-                u = "" if unit is None else f" {unit}"
-                lines.append(f"{label} : {val}{u}.")
-        return lines
-
-    @staticmethod
-    def _find_value(kpi_rows: list[dict[str, object]], code: str) -> float | None:
-        """Retourne la valeur d'un code KPI ou ``None``.
-
-        :param kpi_rows: Lignes source.
-        :type kpi_rows: list[dict[str, object]]
-        :param code: Code exact recherché.
-        :type code: str
-        :return: Valeur float ou ``None``.
-        :rtype: float | None
-        """
-        for row in kpi_rows:
-            if str(row.get("code", "")) == code:
-                val = row.get("value")
-                if isinstance(val, (int, float)) and not isinstance(val, bool):
-                    return float(val)
-        return None
+        period_start, period_end = context.period_iso_bounds()
+        ctx = SectionEditorialContext.from_editorial(
+            editorial,
+            report_type,
+            period_start,
+            period_end,
+            status,
+            kpi_rows,
+            context,
+            eligibility_detail=eligibility_detail,
+        )
+        writer = self._writers.get(editorial.section_code, self._fallback)
+        write_fn = getattr(writer, "write")
+        return list(write_fn(ctx))

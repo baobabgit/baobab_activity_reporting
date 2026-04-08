@@ -1,5 +1,29 @@
 # Journal de développement — baobab-activity-reporting
 
+## 2026-04-08 02:00:00
+
+### Modifications
+
+- Refonte ``NarrativeBuilder`` / ``InsightBuilder`` : registre par ``section_code``,
+  méthodes ``section_narrative_blocks`` et ``insights_for_section`` ; ``ReportBuilder``
+  passe ``report_type``, ``eligibility_detail`` et ``SectionStatus``.
+- Nouveaux modules ``section_editorial_context``, ``narrative_kpi_accessor``,
+  ``report_lead_narrative_writer``, rédacteurs ``*NarrativeWriter`` et ``*InsightWriter``
+  (dont ``AttentionPointsInsightWriter`` sans code KPI dans le texte).
+- Tests miroir supplémentaires (contexte, accesseur, synthèse, conclusion, attention,
+  fallback).
+
+### Buts
+
+- Remplacer les phrases génériques et les listes d'indicateurs par une rédaction
+  analytique spécialisée par type de rapport et par section.
+
+### Impact
+
+- API publique : ``NarrativeBuilder.lead_paragraph`` exige ``report_type`` ;
+  ``section_intro`` / ``editorial_section_intro`` et les anciennes méthodes
+  ``InsightBuilder.telephony_balance_insights`` etc. sont retirées.
+
 ## 2026-04-07 20:00:00
 
 ### Modifications

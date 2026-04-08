@@ -9,6 +9,10 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- Moteur de rédaction par section : ``SectionEditorialContext``, ``NarrativeKpiAccessor``,
+  rédacteurs narratifs et d'insights (synthèse hebdo, téléphonie, tickets, ventilation
+  agent/site, points d'attention, conclusion, sections legacy) ; ``ReportLeadNarrativeWriter``
+  pour l'accroche du rapport. Les insights ne listent plus mécaniquement les KPI.
 - Couche ``reporting/presentation/`` : formatage métier des durées, volumes,
   pourcentages, arrondis, libellés, anomalies de dimensions ; projection des KPI
   en tableaux courts selon ``TableLayoutKind`` ; alertes de présentation

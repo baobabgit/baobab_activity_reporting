@@ -1,128 +1,148 @@
-"""Module de construction des blocs narratifs."""
+"""Orchestration de la rédaction narrative par section (hors rendu documentaire)."""
+
+from __future__ import annotations
 
 from baobab_activity_reporting.domain.results.section_decision import SectionStatus
+from baobab_activity_reporting.domain.results.section_eligibility_detail import (
+    SectionEligibilityDetail,
+)
+from baobab_activity_reporting.reporting.agent_breakdown_narrative_writer import (
+    AgentBreakdownNarrativeWriter,
+)
+from baobab_activity_reporting.reporting.agent_contribution_narrative_writer import (
+    AgentContributionNarrativeWriter,
+)
+from baobab_activity_reporting.reporting.attention_points_narrative_writer import (
+    AttentionPointsNarrativeWriter,
+)
+from baobab_activity_reporting.reporting.conclusion_narrative_writer import (
+    ConclusionNarrativeWriter,
+)
 from baobab_activity_reporting.reporting.editorial.editorial_section_definition import (
     EditorialSectionDefinition,
 )
+from baobab_activity_reporting.reporting.fallback_section_narrative_writer import (
+    FallbackSectionNarrativeWriter,
+)
 from baobab_activity_reporting.reporting.report_context import ReportContext
+from baobab_activity_reporting.reporting.report_lead_narrative_writer import (
+    ReportLeadNarrativeWriter,
+)
+from baobab_activity_reporting.reporting.section_editorial_context import (
+    SectionEditorialContext,
+)
+from baobab_activity_reporting.reporting.site_breakdown_narrative_writer import (
+    SiteBreakdownNarrativeWriter,
+)
+from baobab_activity_reporting.reporting.site_workload_narrative_writer import (
+    SiteWorkloadNarrativeWriter,
+)
+from baobab_activity_reporting.reporting.telephony_activity_narrative_writer import (
+    TelephonyActivityNarrativeWriter,
+)
+from baobab_activity_reporting.reporting.telephony_overview_narrative_writer import (
+    TelephonyOverviewNarrativeWriter,
+)
+from baobab_activity_reporting.reporting.ticket_channels_narrative_writer import (
+    TicketChannelsNarrativeWriter,
+)
+from baobab_activity_reporting.reporting.ticket_processing_narrative_writer import (
+    TicketProcessingNarrativeWriter,
+)
+from baobab_activity_reporting.reporting.weekly_synthesis_narrative_writer import (
+    WeeklySynthesisNarrativeWriter,
+)
 
 
 class NarrativeBuilder:
-    """Produit des paragraphes descriptifs à partir du contexte et des KPI.
+    """Délègue la rédaction à des classes spécialisées par section.
 
-    Le contenu est en français et ne contient aucune balise de format
-    documentaire : uniquement du texte brut prêt à être injecté dans un
-    moteur de rendu ultérieur.
-
-    :Example:
-        >>> from datetime import date
-        >>> from baobab_activity_reporting.domain.models.reporting_period import (
-        ...     ReportingPeriod,
-        ... )
-        >>> from baobab_activity_reporting.reporting.report_context import (
-        ...     ReportContext,
-        ... )
-        >>> from baobab_activity_reporting.reporting.narrative_builder import (
-        ...     NarrativeBuilder,
-        ... )
-        >>> p = ReportingPeriod(date(2026, 1, 1), date(2026, 1, 31))
-        >>> ctx = ReportContext(p, [])
-        >>> NarrativeBuilder().lead_paragraph(ctx, "Titre")
-        'Ce rapport couvre la période du 2026-01-01 au 2026-01-31.'
+    Chaque rédacteur produit au plus deux paragraphes analytiques, sans
+    répétition mécanique des tableaux ni code KPI dans le texte.
     """
 
-    def lead_paragraph(self, context: ReportContext, report_title: str) -> str:
-        """Génère une phrase d'introduction pour tout le rapport.
-
-        :param context: Période couverte.
-        :type context: ReportContext
-        :param report_title: Titre déjà formaté du rapport.
-        :type report_title: str
-        :return: Paragraphe d'accroche.
-        :rtype: str
-        """
-        _ = report_title
-        start, end = context.period_iso_bounds()
-        return (
-            f"Ce rapport couvre la période du {start} au {end}. "
-            f"{self._kpi_count_sentence(context)}"
-        )
-
-    def section_intro(
+    def __init__(
         self,
-        section_code: str,
-        section_title: str,
-        kpi_count: int,
-    ) -> str:
-        """Introduit une section à partir de son identifiant et du volume de KPI.
+        *,
+        lead_writer: ReportLeadNarrativeWriter | None = None,
+        section_writers: dict[str, object] | None = None,
+        fallback_writer: FallbackSectionNarrativeWriter | None = None,
+    ) -> None:
+        """Initialise le registre des rédacteurs de section.
 
-        :param section_code: Code technique de la section.
-        :type section_code: str
-        :param section_title: Titre lisible.
-        :type section_title: str
-        :param kpi_count: Nombre d'indicateurs dans la section.
-        :type kpi_count: int
-        :return: Court paragraphe introductif.
-        :rtype: str
+        :param lead_writer: Rédacteur d'accroche rapport (défaut : instance standard).
+        :param section_writers: Map ``section_code`` → rédacteur avec méthode ``write(ctx)``.
+        :param fallback_writer: Rédacteur si le code de section est inconnu.
         """
-        _ = section_code
-        if kpi_count == 0:
-            return f"La section « {section_title} » ne contient aucun indicateur."
-        if kpi_count == 1:
-            return (
-                f"La section « {section_title} » s'appuie sur un indicateur clé "
-                "pour cette période."
-            )
-        return (
-            f"La section « {section_title} » présente {kpi_count} indicateurs "
-            "pour cette période."
+        self._lead: ReportLeadNarrativeWriter = (
+            lead_writer if lead_writer is not None else ReportLeadNarrativeWriter()
+        )
+        self._fallback: FallbackSectionNarrativeWriter = (
+            fallback_writer if fallback_writer is not None else FallbackSectionNarrativeWriter()
+        )
+        default_writers: dict[str, object] = {
+            "weekly_synthesis": WeeklySynthesisNarrativeWriter(),
+            "weekly_telephony": TelephonyActivityNarrativeWriter(),
+            "weekly_ticket_processing": TicketProcessingNarrativeWriter(),
+            "weekly_agent_contribution": AgentContributionNarrativeWriter(),
+            "weekly_site_workload": SiteWorkloadNarrativeWriter(),
+            "weekly_attention_points": AttentionPointsNarrativeWriter(),
+            "weekly_conclusion": ConclusionNarrativeWriter(),
+            "telephony_overview": TelephonyOverviewNarrativeWriter(),
+            "ticket_channels": TicketChannelsNarrativeWriter(),
+            "agent_breakdown": AgentBreakdownNarrativeWriter(),
+            "site_breakdown": SiteBreakdownNarrativeWriter(),
+        }
+        self._writers: dict[str, object] = (
+            dict(section_writers) if section_writers is not None else default_writers
         )
 
-    def editorial_section_intro(
+    def lead_paragraph(
+        self,
+        context: ReportContext,
+        report_title: str,
+        report_type: str,
+    ) -> str:
+        """Génère l'introduction du rapport selon le type et les données.
+
+        :param context: Période et KPI complets.
+        :param report_title: Titre formaté du rapport.
+        :param report_type: Identifiant du type de rapport.
+        :return: Un paragraphe texte brut.
+        """
+        return self._lead.write(context, report_title, report_type)
+
+    def section_narrative_blocks(
         self,
         editorial: EditorialSectionDefinition,
-        kpi_count: int,
+        kpi_rows: list[dict[str, object]],
         status: SectionStatus,
-    ) -> str:
-        """Introduit une section à partir du plan éditorial et du statut.
+        report_type: str,
+        context: ReportContext,
+        *,
+        eligibility_detail: SectionEligibilityDetail | None = None,
+    ) -> list[str]:
+        """Produit les paragraphes narratifs d'une section.
 
-        :param editorial: Définition éditoriale de la section.
-        :type editorial: EditorialSectionDefinition
-        :param kpi_count: Nombre d'indicateurs liés à la section.
-        :type kpi_count: int
-        :param status: Statut d'éligibilité (inclus ou dégradé).
-        :type status: SectionStatus
-        :return: Paragraphe combinant objectif et synthèse des données.
-        :rtype: str
+        :param editorial: Définition éditoriale.
+        :param kpi_rows: KPI filtrés pour la section.
+        :param status: Statut d'inclusion.
+        :param report_type: Type de rapport.
+        :param context: Contexte complet (pour KPI globaux).
+        :param eligibility_detail: Détail d'éligibilité optionnel.
+        :return: Liste de paragraphes (souvent un ou deux éléments).
         """
-        objective = editorial.section_objective.strip()
-        title = editorial.section_title
-        style = editorial.writing_style
-        style_hint = (
-            f" (style attendu : {style.tone}, {style.length_hint})" if style.length_hint else ""
+        period_start, period_end = context.period_iso_bounds()
+        ctx = SectionEditorialContext.from_editorial(
+            editorial,
+            report_type,
+            period_start,
+            period_end,
+            status,
+            kpi_rows,
+            context,
+            eligibility_detail=eligibility_detail,
         )
-        obj_sentence = f"Objectif : {objective} " if objective else f"Section « {title} ». "
-        if status == SectionStatus.DEGRADED:
-            return (
-                f"{obj_sentence}Les données disponibles ne permettent pas de "
-                f"remplir les indicateurs attendus pour « {title} » ; la section "
-                f"est maintenue à titre informatif{style_hint}."
-            )
-        volume = self.section_intro(editorial.section_code, title, kpi_count)
-        return f"{obj_sentence}{volume}"
-
-    @staticmethod
-    def _kpi_count_sentence(context: ReportContext) -> str:
-        """Phrase sur le nombre total de KPI.
-
-        :param context: Contexte source.
-        :type context: ReportContext
-        :return: Phrase complémentaire.
-        :rtype: str
-        """
-        total = len(context.kpi_records)
-        if total == 0:
-            return "Aucun indicateur n'est disponible pour cette période."
-        if total == 1:
-            return "Un indicateur agrège l'activité sur cette période."
-        return f"{total} indicateurs agrègent l'activité sur cette période."
+        writer = self._writers.get(editorial.section_code, self._fallback)
+        write_fn = getattr(writer, "write")
+        return list(write_fn(ctx))
