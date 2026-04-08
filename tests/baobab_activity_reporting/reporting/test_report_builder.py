@@ -31,6 +31,12 @@ class TestReportBuilder:
                     "unit": "appels",
                 },
                 {
+                    "code": "telephony.outgoing.count",
+                    "label": "Sortants",
+                    "value": 2.0,
+                    "unit": "appels",
+                },
+                {
                     "code": "tickets.channel.EFI.count",
                     "label": "EFI",
                     "value": 3.0,
@@ -50,7 +56,10 @@ class TestReportBuilder:
         p = ReportingPeriod(date(2026, 2, 1), date(2026, 2, 28))
         ctx = ReportContext(
             p,
-            [{"code": "site.Paris.telephony.incoming.count", "value": 1.0}],
+            [
+                {"code": "site.Paris.telephony.incoming.count", "value": 1.0},
+                {"code": "site.Lyon.telephony.incoming.count", "value": 2.0},
+            ],
         )
         model = ReportBuilder().build(ReportDefinition.activity_by_site(), ctx)
         assert model.section_codes == ["site_breakdown"]
@@ -60,7 +69,10 @@ class TestReportBuilder:
         p = ReportingPeriod(date(2026, 3, 1), date(2026, 3, 31))
         ctx = ReportContext(
             p,
-            [{"code": "agent.Jean.tickets.count", "value": 4.0}],
+            [
+                {"code": "agent.Jean.tickets.count", "value": 4.0},
+                {"code": "agent.Marie.tickets.count", "value": 1.0},
+            ],
         )
         model = ReportBuilder().build(ReportDefinition.activity_by_agent(), ctx)
         assert model.section_codes == ["agent_breakdown"]

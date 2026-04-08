@@ -1,5 +1,32 @@
 # Journal de développement — baobab-activity-reporting
 
+## 2026-04-08 01:00:00
+
+### Modifications
+
+- Éligibilité des sections : garde-fous métier (téléphonie entrée/sortie, volumes
+  tickets canaux, ventilation agent/site ≥ 2 entités, signaux vigilance avec
+  seuils, conclusion conditionnée aux sections exploitables).
+- Nouveaux types ``SectionEligibilityDetail``, ``SectionAttentionAssessment``,
+  ``SectionEligibilityCodes`` ; ``SectionDecision.detail`` optionnel.
+- Classes dédiées : ``KpiValueAssessor``, portes téléphonie / tickets / breakdown,
+  ``SectionAttentionSignalAnalyzer``, ``ExploitableSectionCatalog``.
+- ``ReportPlanner`` : évaluation de ``weekly_conclusion`` après les autres
+  sections avec ``peer_exploitable_included``.
+- ``ReportBuilder`` : champs ``eligibility_signals`` / ``eligibility_notes`` si
+  détail présent.
+- Tests miroir et scénarios ``test_section_eligibility_hardening``.
+
+### Buts
+
+- Ne plus inclure une section sur la seule présence d'un code KPI : exiger des
+  données minimales exploitables et des signaux réels pour la vigilance.
+
+### Impact
+
+- Rapports hebdo sans KPI : synthèse seule, sans conclusion ; rapports site/agent
+  nécessitent deux sites/agents pour la répartition.
+
 ## 2026-04-07 23:30:00
 
 ### Modifications

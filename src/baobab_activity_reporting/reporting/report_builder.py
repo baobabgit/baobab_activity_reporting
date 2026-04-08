@@ -52,7 +52,10 @@ class ReportBuilder:
         >>> p = ReportingPeriod(date(2026, 1, 1), date(2026, 1, 31))
         >>> ctx = ReportContext(
         ...     p,
-        ...     [{"code": "telephony.incoming.count", "label": "E", "value": 3.0}],
+        ...     [
+        ...         {"code": "telephony.incoming.count", "label": "E", "value": 3.0},
+        ...         {"code": "telephony.outgoing.count", "label": "S", "value": 2.0},
+        ...     ],
         ... )
         >>> model = ReportBuilder().build(ReportDefinition.activity_telephony(), ctx)
         >>> model.section_codes
@@ -142,17 +145,19 @@ class ReportBuilder:
                     "rows": [],
                 }
             insight_list = self._insights_for_section(section_code, kpis, context)
-            built_sections.append(
-                {
-                    "section_code": section_code,
-                    "title": section_title,
-                    "narrative_blocks": narratives,
-                    "tables": [table],
-                    "insights": insight_list,
-                    "eligibility_status": dec.status.value,
-                    "eligibility_reason": dec.reason,
-                }
-            )
+            section_payload: dict[str, object] = {
+                "section_code": section_code,
+                "title": section_title,
+                "narrative_blocks": narratives,
+                "tables": [table],
+                "insights": insight_list,
+                "eligibility_status": dec.status.value,
+                "eligibility_reason": dec.reason,
+            }
+            if dec.detail is not None:
+                section_payload["eligibility_signals"] = sorted(dec.detail.codes)
+                section_payload["eligibility_notes"] = list(dec.detail.notes)
+            built_sections.append(section_payload)
         logger.info(
             "ReportModel construit : type=%s, sections=%d",
             definition.report_type,

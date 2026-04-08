@@ -18,9 +18,15 @@ class TestSectionEligibilityEvaluator:
     """Tests pour la classe SectionEligibilityEvaluator."""
 
     def test_included_when_prefix_matches(self) -> None:
-        """Une section est incluse si un KPI correspond."""
+        """Une section téléphonie est incluse si les volumes entrants et sortants sont utiles."""
         p = ReportingPeriod(date(2026, 1, 1), date(2026, 1, 31))
-        ctx = ReportContext(p, [{"code": "telephony.incoming.count"}])
+        ctx = ReportContext(
+            p,
+            [
+                {"code": "telephony.incoming.count", "value": 3.0},
+                {"code": "telephony.outgoing.count", "value": 2.0},
+            ],
+        )
         ev = SectionEligibilityEvaluator()
         d = ev.evaluate("s", frozenset({"telephony."}), ctx)
         assert d.status == SectionStatus.INCLUDED

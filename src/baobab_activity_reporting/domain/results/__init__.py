@@ -10,8 +10,17 @@ from baobab_activity_reporting.domain.results.data_availability import (
 from baobab_activity_reporting.domain.results.extraction_result import (
     ExtractionResult,
 )
+from baobab_activity_reporting.domain.results.section_attention_assessment import (
+    SectionAttentionAssessment,
+)
 from baobab_activity_reporting.domain.results.section_decision import (
     SectionDecision,
+)
+from baobab_activity_reporting.domain.results.section_eligibility_codes import (
+    SectionEligibilityCodes,
+)
+from baobab_activity_reporting.domain.results.section_eligibility_detail import (
+    SectionEligibilityDetail,
 )
 from baobab_activity_reporting.domain.results.validation_result import (
     ValidationResult,
@@ -20,6 +29,9 @@ from baobab_activity_reporting.domain.results.validation_result import (
 __all__: list[str] = [
     "DataAvailability",
     "ExtractionResult",
+    "SectionAttentionAssessment",
     "SectionDecision",
+    "SectionEligibilityCodes",
+    "SectionEligibilityDetail",
     "ValidationResult",
 ]
